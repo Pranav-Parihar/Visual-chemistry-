@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visual Chemistry Lab — Experiments</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00796B">
+<script src="chem-features.js" defer></script>
+<style>
+:root{--bg1:#FFF8DC;--bg2:#EDF97B;--accent:#00796B;--accent2:#E65100;--accent3:#558B2F;--accent4:#FF8F00;--card:#FFFEF5;--text:#2E2A08;color-scheme:light}
+*{box-sizing:border-box}html{ -webkit-text-size-adjust:100% }html,body{margin:0;min-height:100%;overflow-x:hidden}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(160deg,var(--bg1) 0%,#FFFBEA 40%,var(--bg2) 100%);background-attachment:fixed;color:var(--text);padding:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px));min-height:100dvh;font-size:16px;line-height:1.5}
+.wrap{max-width:1020px;margin:0 auto;width:100%}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.topbar a.back{text-decoration:none;color:#fff;background:linear-gradient(90deg,#00897B,#558B2F);padding:12px 18px;border-radius:10px;font-weight:700;min-height:44px;display:inline-flex;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.hero{background:#FFFEF7;border:2px solid #E3D67A;border-radius:20px;padding:clamp(16px,4vw,24px);margin-bottom:16px;box-shadow:0 10px 28px rgba(180,160,40,.25);position:relative;z-index:2}
+.hero h1{margin-top:0}
+.hero .search{margin-bottom:0}
+h1{margin:6px 0;background:linear-gradient(90deg,#E65100,#2E7D32);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:clamp(1.35rem,5.2vw,1.9rem);line-height:1.2;overflow-wrap:anywhere}
+.sub{color:#6D6410;margin:0 0 14px;font-size:clamp(.85rem,3.6vw,.95rem);font-weight:600}
+.student{background:#FFF6C9;border:1px solid #D9C94A;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:.92rem;overflow-wrap:anywhere;color:#3A3405}
+.tabs{display:flex;gap:8px;margin-bottom:8px}
+.tabs button{flex:0 0 auto;margin:0;padding:12px 18px;border-radius:999px;cursor:pointer;font-weight:700;font-size:.95rem;min-height:44px;background:#FFFFFF;color:#3A3405;border:1.5px solid #CFC15A}
+.tabs button.active{background:linear-gradient(90deg,#FFE600,#8BC34A);color:#1A3000;border-color:#7AA93A}
+.search{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #CFC15A;background:#FFFDE7;color:#2E2A08;font-size:16px;margin:10px 0 16px;outline:none;min-height:48px}
+.search::placeholder{color:#8A7F3A}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:12px}
+.exp{background:#FFFEF7;border:1.5px solid #E3D67A;border-radius:16px;padding:clamp(14px,4vw,18px);min-width:0;overflow-wrap:anywhere;word-break:break-word;box-shadow:0 6px 20px rgba(180,160,40,.2)}
+.exp h3{margin:0 0 4px;font-size:clamp(.98rem,4vw,1.05rem);line-height:1.35;color:#1F1B02}
+.exp .tag{display:inline-block;font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:999px;background:#F0FA8A;border:1px solid #9E9D24;color:#33691E;margin-bottom:8px}
+.exp p{font-size:.9rem;line-height:1.6;color:#3E390F;margin:6px 0}
+.exp details{margin-top:10px;background:#FFF6C9;border:1px solid #E3D67A;border-radius:10px;padding:6px 10px;font-size:.88rem}
+.exp summary{cursor:pointer;font-weight:700;color:#00796B;padding:10px 4px;min-height:44px;display:flex;align-items:center;font-size:.92rem}
+.exp ul{margin:8px 0;padding-left:18px}
+.exp table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:8px;display:block;overflow-x:auto}
+.exp th,.exp td{border:1px solid #D9C94A;padding:6px;text-align:left}
+.safety{background:#FFF3C4;border:1.5px solid #D9A400;border-radius:16px;padding:clamp(14px,4vw,18px);margin-top:16px;overflow-wrap:anywhere;color:#4E3E00}
+.start-btn{display:block;width:100%;margin-top:12px;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:.95rem;cursor:pointer;color:#fff;background:linear-gradient(90deg,#00897B,#558B2F);min-height:48px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.start-btn:active{transform:scale(.98)}
+.modal-back{position:fixed;inset:0;background:rgba(30,25,0,.55);z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-back.open{display:flex}
+.modal{background:#FFFEF7;border-radius:18px;max-width:560px;width:100%;max-height:88dvh;overflow:auto;padding:20px;border:2px solid #E3D67A}
+.modal h2{margin:0 0 6px;font-size:1.15rem;color:#1F1B02}
+.modal ol{margin:10px 0;padding-left:20px;font-size:.9rem;line-height:1.6}
+.modal .close-btn{width:100%;margin-top:12px;padding:12px;border:none;border-radius:10px;font-weight:800;cursor:pointer;background:#3A3405;color:#fff;min-height:48px}
+/* Interactive lab instruments background — light jolly theme */
+body{position:relative}
+.bg-lab{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.glow-cursor{position:fixed;width:280px;height:280px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(255,143,0,.18),transparent 70%);transform:translate(-50%,-50%)}
+.wrap,.hero,.grid{position:relative;z-index:2}
+.inst{position:absolute;width:72px;height:72px;pointer-events:auto;cursor:pointer;will-change:left,top;opacity:.95}
+.inst-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.inst.flipped .inst-inner{transform:rotateY(180deg)}
+.inst-face{position:absolute;inset:0;border-radius:14px;border:2px solid currentColor;background:#FFFEF7;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 4px 14px rgba(120,100,0,.25);transition:transform .2s}
+.inst:hover .inst-face{transform:scale(1.15)}
+.inst-face.back{transform:rotateY(180deg);font-size:.58rem;font-weight:700;text-align:center;padding:4px;line-height:1.3;color:#3A3405}
+.inst:hover .inst-face.back{transform:rotateY(180deg) scale(1.15)}
+.inst .ico{font-size:1.7rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
+.inst .nam{font-size:.55rem;font-weight:800;margin-top:4px;color:#3A3405;letter-spacing:.2px}
+/* decorative bubbles + flames — gentle, non-interactive */
+.deco-bubble{position:fixed;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.95),rgba(139,195,74,.18));border:1px solid rgba(180,160,40,.25);pointer-events:none;z-index:0;animation:bob 6s ease-in-out infinite}
+.deco-flame{position:fixed;font-size:1.6rem;opacity:.35;pointer-events:none;z-index:0;filter:saturate(1.2);animation:flick 2.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes flick{0%,100%{transform:scale(1) rotate(-3deg);opacity:.3}50%{transform:scale(1.12) rotate(3deg);opacity:.45}}
+@media(max-width:640px){
+  body{padding:calc(10px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px))}
+  .topbar{flex-direction:column;align-items:stretch}
+  .topbar a.back{justify-content:center;text-align:center}
+  #count{font-size:.85rem;text-align:center}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;margin:0 -10px 8px;padding-left:10px;padding-right:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{scroll-snap-align:start}
+  .grid{grid-template-columns:1fr}
+  .student{font-size:.88rem}
+}
+@media(min-width:641px){.tabs{flex-wrap:wrap}}
+@media(max-width:640px){.inst{width:56px;height:56px}.inst .ico{font-size:1.35rem}.glow-cursor{display:none}}
+@media(hover:none),(pointer:coarse){.glow-cursor{display:none}.inst:hover .inst-face{transform:none}}
+</style>
+</head>
+<body>
+<div class="bg-lab" id="bgLab"></div>
+<div class="glow-cursor" id="glowCursor"></div>
+<div class="wrap">
+<div class="topbar">
+<a class="back" href="index.html">← Back to Registration</a>
+<div id="count" style="opacity:.8"></div>
+</div>
+<div class="hero">
+<h1>Visual Chemistry Lab</h1>
+<p class="sub">CBSE & ICSE Practical Handbook — Classes 9 to 12</p>
+<div class="student" id="studentBar">Loading student details…</div>
+<div class="tabs" id="tabs">
+<button data-class="Class 9">Class 9</button>
+<button data-class="Class 10">Class 10</button>
+<button data-class="Class 11">Class 11</button>
+<button data-class="Class 12">Class 12</button>
+<button data-class="Safety">Safety</button>
+</div>
+<input class="search" id="search" placeholder="Search experiments… e.g. pH, titration, KMnO4, salt analysis">
+</div>
+<div class="grid" id="grid"></div>
+<div class="modal-back" id="modalBack"><div class="modal" id="modalBox"></div></div>
+<div class="safety" id="safetyBox" style="display:none">
+<h2>Lab Safety — Secondary & Senior Secondary</h2>
+<ul>
+<li>Wear cotton lab coat + goggles. Never taste chemicals; waft gases.</li>
+<li>Never point heating test-tube mouth at yourself or others.</li>
+<li>Titration: rinse burette with titrant, remove air bubbles, read lower meniscus (clear) / upper meniscus (KMnO4).</li>
+<li>Qualitative analysis: use 10–20 mg salt, prepare clear Original Solution, pass H2S slowly.</li>
+<li>Handle conc. acids, CS2, Na metal, conc. HNO3 only under teacher supervision.</li>
+</ul>
+</div>
+</div>
+<script>
+const DATA={
+"Class 9":[
+{no:1,title:"True Solution, Suspension & Colloidal Solution",aim:"Prepare true solution of NaCl, suspension of chalk, colloidal starch and distinguish by transparency, filtration, stability.",reagents:"5.0 g NaCl in 100 mL water | 5.0 g chalk in 100 mL water | 1.0 g starch paste in 100 mL boiling water.",theory:"True <1nm, passes filter, stable. Suspension >1000nm, settles, residue. Colloid 1–1000nm, Tyndall effect, passes filter.",obs:"NaCl: clear, passes, stable | Chalk: opaque, residue, settles | Starch: translucent, passes, stable.",precaution:"Mix starch in 5 mL cold water before boiling water. Separate glass rods.",result:"True=clear stable; Suspension=settles+residue; Colloid=translucent stable."},
+{no:2,title:"Separation of Sand, Salt & Ammonium Chloride",aim:"Separate 5.0 g mixture (1.5 g sand +1.5 g NaCl +2.0 g NH4Cl).",reagents:"5 g mixture, 30 mL water, china dish, inverted funnel, burner.",theory:"Sublimation: NH4Cl(s)→NH4Cl(g). Solubility: NaCl dissolves, sand not. Evaporation recovers NaCl.",obs:"Heat with funnel → 2.0 g NH4Cl sublime. Add water, filter → 1.5 g sand. Evaporate filtrate → 1.5 g NaCl.",precaution:"Tight cotton plug. Gentle evaporation to avoid sputtering.",result:"Separated into 2.0 g NH4Cl, 1.5 g sand, 1.5 g NaCl."},
+{no:3,title:"Physical vs Chemical Changes",aim:"Distinguish using Fe+S mixture/compound and Mg burning.",reagents:"7.0 g Fe, 4.0 g S, 5 cm Mg ribbon, magnet, 2 mL CS2.",theory:"Fe+S → FeS (11 g black). 2Mg+O2→2MgO white ash.",obs:"Mixture: magnetic, S dissolves in CS2 = physical. Compound FeS: non-magnetic, insoluble = chemical.",precaution:"Do not look at burning Mg. CS2 away from flame.",result:"Mixing=physical; Heating to FeS & burning Mg=chemical."},
+{no:4,title:"Heat on CuCO3 & Zinc Nitrate",aim:"Thermal decomposition of 2 g CuCO3 and 2 g Zn(NO3)2·6H2O.",reagents:"2 g CuCO3 green, 2 g Zn nitrate, 5 mL lime water, delivery tube.",theory:"CuCO3→CuO(1.28g black)+CO2; CO2+Ca(OH)2→CaCO3 milky. 2Zn(NO3)2→2ZnO+4NO2 brown+O2.",obs:"CuCO3 green→black, lime milky. Zn nitrate → brown NO2, residue yellow hot/white cold.",precaution:"Remove tube before stopping heat. Fume hood for NO2.",result:"CuCO3→CuO+CO2; Zn nitrate→ZnO+NO2+O2."},
+{no:5,title:"Identification of Gases CO2, SO2, Cl2, NH3",aim:"Generate and confirm 4 gases.",reagents:"CO2: 1g CaCO3 + 5mL dil HCl + 5mL lime water | SO2: 1g Na2SO3 + 5mL dil H2SO4 + 2mL acidified K2Cr2O7 | Cl2: 1g MnO2 + 3mL conc HCl + heat + starch-iodide paper | NH3: 1g NH4Cl + 5mL 2M NaOH + heat + HCl rod.",theory:"CO2→lime milky; SO2→dichromate orange→green; Cl2→starch-iodide blue-black; NH3+HCl→NH4Cl white fumes.",obs:"CO2: lime water turns milky (CaCO3 ppt) | SO2: orange dichromate turns emerald green (Cr3+) | Cl2: starch-iodide turns blue-black (I2 complex) | NH3: dense white fumes of NH4Cl with HCl rod.",precaution:"Cl2/SO2 in ventilated area. Fresh lime water.",result:"CO2 milky, SO2 green, Cl2 blue-black, NH3 white fumes confirmed."}
+],
+"Class 10":[
+{no:1,title:"pH of Solutions with pH Paper",aim:"Measure pH of 6 samples (5 mL each, 1 drop per strip).",reagents:"0.1M HCl, lemon juice, 0.1M CH3COOH, water, 5% NaHCO3, 0.1M NaOH.",theory:"HCl 1-2 red strong acid; Lemon 2-3; Acetic 4-5; Water 7 green neutral; NaHCO3 8.5; NaOH 13-14 violet.",obs:"Colour chart as handbook p6.",precaution:"Wash dropper. Do not touch strips.",result:"Acid→base order confirmed."},
+{no:2,title:"Acids (HCl) & Bases (NaOH) Properties",aim:"Reactions with litmus, Zn, Na2CO3.",reagents:"2mL acid/base+litmus; 1g Zn+5mL reagent; 0.5g Na2CO3+3mL HCl; 3mL lime water.",theory:"Zn+2HCl→ZnCl2+H2 pop; Zn+2NaOH→Na2ZnO2+H2; Na2CO3+2HCl→2NaCl+H2O+CO2 milky.",obs:"Blue litmus→red in acid; red→blue in base.",precaution:"Careful H2 pop test.",result:"Acids give H2+CO2; bases give H2, turn litmus blue."},
+{no:3,title:"Metal Reactivity — Zn, Fe, Cu",aim:"Single displacement in 5 mL 0.5M solutions with 0.5 g metal.",reagents:"CuSO4 blue, FeSO4 green, ZnSO4 + Fe, Zn, Cu strips.",theory:"Fe+CuSO4→FeSO4+Cu; Zn+CuSO4→ZnSO4+Cu; Cu+FeSO4→no reaction.",obs:"Blue fades to green/colourless with Fe/Zn. No change with Cu in FeSO4.",precaution:"Sandpaper metals. Wait 15 min.",result:"Reactivity: Zn > Fe > Cu."},
+{no:4,title:"Cations with NaOH",aim:"Identify Cu2+, Fe2+, Fe3+, Pb2+, Zn2+ (2 mL 0.1M + drops then 3 mL excess 2M NaOH).",reagents:"Cu blue ppt, Fe(II) dirty green, Fe(III) brown, Pb white→dissolves Na2PbO2, Zn white→Na2ZnO2.",theory:"Pb(OH)2+2NaOH→Na2PbO2; Zn(OH)2+2NaOH→Na2ZnO2.",obs:"Only Pb, Zn dissolve in excess.",precaution:"Dropwise first, shake after excess.",result:"Amphoteric Pb, Zn vs insoluble Cu, Fe."},
+{no:5,title:"Acids on Carbonates, Sulphides, Sulphites",aim:"0.5 g salt +3 mL dil H2SO4.",reagents:"Na2CO3→CO2→lime milky; ZnS→H2S rotten→Pb acetate black; Na2SO3→SO2→dichromate green.",theory:"Equations handbook p10.",obs:"Effervescence / smell / paper tests.",precaution:"Do not inhale H2S. Moisten papers.",result:"CO3, S, SO3 distinguished."}
+],
+"Class 11":[
+{no:1,title:"Standard 0.1M Oxalic Acid (250 mL)",aim:"Prepare M/10 (COOH)2·2H2O.",reagents:"M=126.07, W=(0.1×126.07×250)/1000=3.150 g.",theory:"Weigh 3.150 g, transfer with funnel, dissolve 150 mL, make to 250 mL meniscus, invert 5×.",obs:"Clear standard solution.",precaution:"No spill, eye-level meniscus.",result:"250 mL 0.1M ready."},
+{no:2,title:"Titration: NaOH vs Oxalic Acid",aim:"Find M & strength of NaOH. 20 mL 0.1M acid + phenolphthalein vs NaOH.",reagents:"(COOH)2+2NaOH→(COONa)2+2H2O. Concordant 20.0 mL.",theory:"M1V1/1=M2V2/2 → M=0.20M. Strength=0.20×40=8.00 g/L.",obs:"Faint pink 30 sec end point.",precaution:"Lower meniscus.",result:"0.20M, 8.00 g/L."},
+{no:3,title:"Anion Analysis",aim:"Detect CO3, S, Cl, NO3, SO4.",reagents:"0.1g+2mL dil H2SO4; 0.1g+2mL conc H2SO4; 2mL extract+1mL BaCl2; Brown ring: 2mL+2mL FeSO4+1mL conc H2SO4→brown [Fe(H2O)5NO]2+.",theory:"Scheme handbook p13.",obs:"Effervescence/fumes/ppt/ring.",precaution:"Fresh FeSO4, do not shake ring.",result:"Nitrate confirmed demo."},
+{no:4,title:"Cation Analysis",aim:"Groups 0–III: NH4, Pb, Cu, Fe/Al.",reagents:"0.1g+2mL NaOH→NH3; 2mL OS+1mL HCl→PbCl2; H2S→CuS black; NH4Cl+NH4OH→Fe(OH)3/Al(OH)3; Nessler→brown for NH4.",theory:"NH4Cl before NH4OH.",obs:"Group ppts.",precaution:"Clear OS.",result:"NH4+ confirmed demo."},
+{no:5,title:"Purify CuSO4 by Crystallisation",aim:"Pure CuSO4·5H2O from 10 g impure.",reagents:"10g+25mL water+0.5mL dil H2SO4. Filter hot, concentrate to crystallisation point, overnight →6.5g blue triclinic.",theory:"H2SO4 prevents hydrolysis.",obs:"Blue crystals.",precaution:"Stop at crystallisation point, slow cooling.",result:"~6.5 g pure."}
+],
+"Class 12":[
+{no:1,title:"KMnO4 vs FAS (Mohr Salt)",aim:"M & strength of KMnO4. 250mL M/20 FAS: 4.900g+5mL H2SO4. 20mL FAS+20mL 2N H2SO4 vs KMnO4.",reagents:"2KMnO4+10FeSO4+8H2SO4→… Concordant 20.0mL.",theory:"M1V1/2=M2V2/10 → 0.01M. Strength 0.01×158.04=1.58 g/L. Self-indicator pink.",obs:"Permanent faint pink.",precaution:"Upper meniscus for KMnO4.",result:"0.01M, 1.58 g/L."},
+{no:2,title:"Alcohols & Phenols",aim:"–OH vs Ar-OH.",reagents:"Alcohol:1mL EtOH+0.05g Na→H2; +1mL acetic+4 drops H2SO4→fruity. Phenol:1mL+3 drops FeCl3→violet; +0.1g phthalic+ H2SO4→pink in NaOH.",theory:"2C2H5OH+2Na→2C2H5ONa+H2.",obs:"Effervescence/fruity/violet/pink.",precaution:"Dry forceps for Na, neutral FeCl3.",result:"Both groups confirmed."},
+{no:3,title:"Aldehydes vs Ketones",aim:"C=O via 2,4-DNP yellow-orange. Distinguish.",reagents:"2mL DNP+0.5mL sample. Tollen:1mL+2mL, 60°C 5min→silver mirror aldehyde. Fehling:1mL+1mL A+1mL B boil→red Cu2O aldehyde.",theory:"R-CHO+2[Ag(NH3)2]++3OH-→R-COO-+2Ag+…",obs:"Formaldehyde +ve, acetone -ve.",precaution:"Water bath, clean tube.",result:"Aldehyde vs ketone distinguished."},
+{no:4,title:"Salt Analysis — NH4Cl",aim:"1 cation+1 anion.",reagents:"0.1g+2mL dil→no gas; +conc→HCl white with NH4OH; +AgNO3 white→soluble in NH4OH; +NaOH→NH3; +Nessler→brown.",theory:"Cl-+AgNO3→AgCl; AgCl+2NH4OH→[Ag(NH3)2]Cl.",obs:"Table p19.",precaution:"Hard glass, amber Nessler.",result:"NH4+ + Cl- = NH4Cl."},
+{no:5,title:"Food: Carbs, Proteins, Fats",aim:"Detect in extracts.",reagents:"Molisch:2mL+2 drops+2mL H2SO4→violet ring; Iodine→blue-black; Biuret:2mL+2mL NaOH+4 drops CuSO4→violet; Xanthoproteic→yellow→orange; Spot→translucent; Acrolein:0.5mL+0.5g KHSO4→pungent.",theory:"As handbook p20.",obs:"Colours/smells.",precaution:"Careful conc acids.",result:"All food groups tested."}
+]
+};
+const params=new URLSearchParams(location.search);
+const qName=params.get('name')||localStorage.getItem('chemName')||'Student';
+const qBoard=params.get('board')||localStorage.getItem('chemBoard')||'';
+const qClass=params.get('class')||localStorage.getItem('chemClass')||'Class 9';
+if(params.get('name'))localStorage.setItem('chemName',qName);
+if(params.get('board'))localStorage.setItem('chemBoard',qBoard);
+if(params.get('class'))localStorage.setItem('chemClass',qClass);
+document.getElementById('studentBar').innerHTML=`Welcome, <b>${qName}</b> 🧪 ${qBoard?`| Board: <b>${qBoard}</b>`:''} | Class: <b>${qClass}</b>`;
+const grid=document.getElementById('grid'),tabs=[...document.querySelectorAll('#tabs button')],search=document.getElementById('search'),safetyBox=document.getElementById('safetyBox'),count=document.getElementById('count');
+let current=qClass&&DATA[qClass]?qClass:'Class 9';
+function render(){
+tabs.forEach(b=>b.classList.toggle('active',b.dataset.class===current));
+const q=search.value.toLowerCase();
+if(current==='Safety'){grid.innerHTML='';safetyBox.style.display='block';count.textContent='';return}
+safetyBox.style.display='none';
+const list=DATA[current].filter(e=>(e.title+e.aim+e.reagents).toLowerCase().includes(q));
+count.textContent=list.length+' / '+DATA[current].length+' experiments';
+grid.innerHTML=list.map((e,idx)=>`<div class="exp"><span class="tag">${current} • Exp ${e.no}</span><h3>${e.title}</h3><p><b>Aim:</b> ${e.aim}</p><details open><summary>Reagents & Amounts</summary><p>${e.reagents}</p></details><details><summary>Theory</summary><p>${e.theory}</p></details><details><summary>Observation</summary><p>${e.obs}</p></details><details><summary>Precautions & Result</summary><p><b>Precaution:</b> ${e.precaution}</p><p><b>Result:</b> ${e.result}</p></details><button class="start-btn" data-exp="${e.no}">Start Practical ▶</button></div>`).join('')||'<p>No matches.</p>';
+}
+grid.onclick=(ev)=>{
+  const b=ev.target.closest('.start-btn');if(!b)return;
+  const no=+b.dataset.exp;
+  const keep=new URLSearchParams({name:qName,board:qBoard,class:current,exp:no});
+  location.href='thelab.html?'+keep.toString();
+};
+tabs.forEach(b=>b.onclick=()=>{current=b.dataset.class;render()});
+search.oninput=render;
+render();
+
+/* Static lab instruments with click interaction — no movement */
+(function(){
+const bg=document.getElementById('bgLab'),glow=document.getElementById('glowCursor');
+if(!bg)return;
+const tools=[
+['🧪','Test Tube','#00796B','Holds liquids'],
+['⚗️','Flask','#5C6BC0','Mixing'],
+['🔬','Scope','#E65100','Observe'],
+['🌡️','Thermo','#C62828','Temp check'],
+['⚖️','Balance','#6A1B9A','Mass'],
+['💧','Pipette','#0288D1','Drops'],
+['🔥','Burner','#EF6C00','Heating'],
+['🧫','Petri','#558B2F','Culture']
+];
+/* fixed edge spots so they never cover hero/cards */
+const spots=[
+{left:'2%',top:'12%'},{left:'92%',top:'10%'},{left:'3%',top:'48%'},
+{left:'91%',top:'52%'},{left:'4%',top:'84%'},{left:'90%',top:'86%'},
+{left:'12%',top:'4%'},{left:'80%',top:'5%'}
+];
+const mobile=matchMedia('(max-width:640px)').matches;
+const list=mobile?tools.slice(0,6):tools;
+const SZ=mobile?52:68;
+list.forEach((t,i)=>{
+  const s=spots[i%spots.length];
+  const d=document.createElement('div');
+  d.className='inst';d.style.color=t[2];
+  d.style.left=s.left;d.style.top=s.top;d.style.width=SZ+'px';d.style.height=SZ+'px';
+  d.style.position='fixed';
+  d.innerHTML=`<div class="inst-inner"><div class="inst-face front"><span class="ico">${t[0]}</span><span class="nam">${t[1]}</span></div><div class="inst-face back">${t[3]}</div></div>`;
+  bg.appendChild(d);
+});
+/* decorative background designs: soft bubbles + small flames */
+const bubbles=[[8,30,14],[18,75,10],[35,12,8],[55,88,12],[70,20,9],[85,65,14],[25,55,7],[65,50,6]];
+bubbles.forEach((b,i)=>{
+  const d=document.createElement('div');
+  d.className='deco-bubble';
+  d.style.left=b[0]+'%';d.style.top=b[1]+'%';
+  d.style.width=b[2]+'px';d.style.height=b[2]+'px';
+  d.style.animationDelay=(i*0.7)+'s';
+  document.body.appendChild(d);
+});
+const flames=[{l:'20%',t:'22%'},{l:'75%',t:'30%'},{l:'15%',t:'68%'},{l:'82%',t:'72%'}];
+flames.forEach((f,i)=>{
+  const d=document.createElement('div');
+  d.className='deco-flame';d.textContent='🔥';
+  d.style.left=f.l;d.style.top=f.t;
+  d.style.animationDelay=(i*0.5)+'s';
+  document.body.appendChild(d);
+});
+addEventListener('pointermove',e=>{if(glow){glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px'}},{passive:true});
+bg.addEventListener('click',e=>{
+  const t=e.target.closest('.inst');if(!t)return;
+  t.classList.toggle('flipped');
+  const c=t.style.color,r=t.getBoundingClientRect();
+  if(glow)glow.style.background=`radial-gradient(circle, ${c}44, transparent 70%)`;
+  for(let i=0;i<8;i++){const s=document.createElement('div');
+    s.style.cssText=`position:fixed;left:${r.left+r.width/2}px;top:${r.top+r.height/2}px;width:6px;height:6px;border-radius:50%;background:${c};box-shadow:0 0 8px ${c};z-index:6;pointer-events:none`;
+    const a=Math.random()*Math.PI*2,dd=35+Math.random()*45;
+    s.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${Math.cos(a)*dd}px,${Math.sin(a)*dd}px)`,opacity:0}],{duration:550+Math.random()*350,easing:'ease-out'});
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);}
+  t.style.transform='scale(1.12)';setTimeout(()=>t.style.transform='',200);
+});
+})();
+
+
+</script>
+</body>
+</html>

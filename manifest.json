@@ -1,0 +1,11 @@
+{
+  "name": "Visual Chemistry Lab",
+  "short_name": "ChemLab",
+  "description": "Offline-first visual chemistry practicals for Classes 9-12",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0025",
+  "theme_color": "#00796B",
+  "icons": []
+}

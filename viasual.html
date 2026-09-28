@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chemistry Lab Registration</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00796B">
+<script src="chem-features.js" defer></script>
+<style>
+  :root{
+    --bg1:#0a0025;
+    --bg2:#1a0040;
+    --accent:#00ffc8;
+    --accent2:#ff2e9f;
+    --accent3:#7c4dff;
+    --accent4:#ffe600;
+    --card:rgba(214, 224, 130, 0.16);
+    --text:#f2f6ff;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    min-height:100%;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(0,255,200,0.35), transparent 42%),
+      radial-gradient(circle at 88% 20%, rgba(255,46,159,0.32), transparent 45%),
+      radial-gradient(circle at 80% 82%, rgba(124,77,255,0.38), transparent 48%),
+      radial-gradient(circle at 20% 88%, rgba(214,224,130,0.28), transparent 55%),
+      radial-gradient(circle at 50% 50%, rgba(245,235,200,0.06), transparent 70%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-attachment: fixed;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: max(20px, env(safe-area-inset-top,0px)) 16px max(20px, env(safe-area-inset-bottom,0px));
+    overflow-x:hidden;
+    position:relative;
+    transition: background 0.3s ease;
+  }
+  .glow-cursor{
+    position:fixed;
+    width:340px;
+    height:340px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:1;
+    background: radial-gradient(circle, rgba(0,255,200,0.18), transparent 70%);
+    transform:translate(-50%,-50%);
+    transition: background 0.4s ease;
+  }
+
+  /* floating molecule background */
+  .bg-mol{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .elem{
+    position:absolute;
+    width:64px;
+    height:64px;
+    perspective:400px;
+    opacity:0.85;
+    cursor:pointer;
+    color: inherit;
+    will-change: left, top;
+  }
+  .elem-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+  .elem.flipped .elem-inner{ transform: rotateY(180deg); }
+  .elem-face{
+    position:absolute;
+    inset:0;
+    border-radius:10px;
+    border:2px solid currentColor;
+    background:rgba(255,255,255,0.06);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    backface-visibility:hidden;
+    backdrop-filter: blur(1px);
+    box-shadow: 0 0 16px currentColor, 0 0 4px currentColor inset;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .elem:hover .elem-face{
+    transform: scale(1.35);
+    box-shadow: 0 0 30px currentColor, 0 0 10px currentColor inset;
+    z-index:5;
+  }
+  .elem-face.back{ transform: rotateY(180deg); font-size:0.5rem; text-align:center; padding:4px; line-height:1.3; }
+  .elem:hover .elem-face.back{ transform: rotateY(180deg) scale(1.35); }
+  .elem .num{ font-size:0.55rem; align-self:flex-start; margin:3px 0 0 5px; opacity:0.9; }
+  .elem .sym{ font-size:1.3rem; font-weight:800; line-height:1; margin-top:-2px; text-shadow:0 0 8px currentColor; }
+  .elem .nam{ font-size:0.45rem; letter-spacing:0.3px; opacity:0.9; margin-top:2px; }
+
+  @keyframes drift{
+    0%{ transform: translateY(0) translateX(0) rotate(0deg); }
+    25%{ transform: translateY(-40px) translateX(18px) rotate(4deg); }
+    50%{ transform: translateY(10px) translateX(-15px) rotate(-3deg); }
+    75%{ transform: translateY(-25px) translateX(-25px) rotate(3deg); }
+    100%{ transform: translateY(0) translateX(0) rotate(0deg); }
+  }
+
+  .bubble{
+    position:absolute;
+    bottom:-40px;
+    border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(57,255,207,0.05));
+    animation: rise linear infinite;
+  }
+  @keyframes rise{
+    to{ transform: translateY(-110vh) translateX(20px); opacity:0; }
+  }
+
+  .card{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:440px;
+    background:var(--card);
+    backdrop-filter: blur(14px);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:22px;
+    padding:34px 30px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(57,255,207,0.08) inset;
+  }
+
+  .flask-icon{
+    width:88px;
+    height:88px;
+    margin:0 auto 10px;
+    display:block;
+    cursor:pointer;
+    filter: drop-shadow(0 0 10px var(--flask-glow, #00ffc8));
+    transition: transform 0.25s ease, filter 0.3s ease;
+  }
+  .flask-eye{ transition: transform 0.15s ease; transform-origin:center; }
+  .flask-icon.winking .flask-eye.right{ transform: scaleY(0.15); }
+  .flask-icon.winking .flask-mouth{ d: path("M24 50 Q32 58 40 50"); }
+  .flask-icon:hover{ transform: scale(1.12) rotate(-4deg); }
+  .flask-icon:active{ transform: scale(0.94) rotate(3deg); }
+  .flask-bubble{ animation: flaskRise 2.6s ease-in infinite; }
+  .flask-bubble.b2{ animation-delay: 0.7s; }
+  .flask-bubble.b3{ animation-delay: 1.4s; }
+  @keyframes flaskRise{
+    0%{ transform: translateY(0); opacity:0.9; }
+    80%{ opacity:0.6; }
+    100%{ transform: translateY(-16px); opacity:0; }
+  }
+  .flask-shimmer{ animation: shimmer 3s ease-in-out infinite; }
+  @keyframes shimmer{
+    0%,100%{ opacity:0.5; }
+    50%{ opacity:1; }
+  }
+
+  h1{
+    text-align:center;
+    margin:0 0 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    letter-spacing:0.5px;
+    display:flex;
+    flex-direction:column;
+    line-height:1.15;
+  }
+  h1 .h1-small{ font-size:1rem; font-weight:500; letter-spacing:1px; }
+  h1 .h1-large{ font-size:2rem; font-weight:800; }
+  .sub{
+    text-align:center;
+    font-size:0.85rem;
+    color:rgba(214, 224, 130, 0.75);
+    margin:0 0 26px;
+  }
+
+  label{
+    display:block;
+    font-size:0.8rem;
+    color:#9fe8d8;
+    margin:0 0 6px 2px;
+    letter-spacing:0.3px;
+    text-transform:uppercase;
+  }
+
+  .field{ margin-bottom:20px; }
+
+  input[type=text], select{
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.06);
+    color:var(--text);
+    font-size:1rem;
+    outline:none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  select{
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%), linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1.15em), calc(100% - 15px) calc(1.15em);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat:no-repeat;
+  }
+  select option{ background:#0c1f3a; color:var(--text); }
+
+  input:focus, select:focus{
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(57,255,207,0.18);
+    background:rgba(255,255,255,0.09);
+  }
+
+  button{
+    width:100%;
+    margin-top:6px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:600;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    color:#04101f;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  button:hover{ transform: translateY(-2px); box-shadow:0 10px 24px rgba(57,255,207,0.25); }
+  button:active{ transform: translateY(0); }
+
+  .result{
+    margin-top:20px;
+    padding:16px;
+    border-radius:12px;
+    background:rgba(57,255,207,0.08);
+    border:1px solid rgba(57,255,207,0.3);
+    font-size:0.95rem;
+    line-height:1.5;
+    display:none;
+  }
+  .result.show{ display:block; animation: pop .3s ease; }
+  @keyframes pop{ from{ opacity:0; transform:scale(0.96);} to{opacity:1; transform:scale(1);} }
+  .result b{ color: var(--accent); }
+
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --text:#0a1a2f;
+    }
+  }
+
+  /* ---- Mobile-friendly ratios ---- */
+  html{ -webkit-text-size-adjust:100%; }
+  body{ min-height:100dvh; }
+  .card{ width:100%; max-width:440px; }
+  input[type=text], select, button{ font-size:16px; min-height:48px; }
+  button{ min-height:52px; }
+  @media (max-width:640px){
+    body{ display:flex; align-items:center; justify-content:center; min-height:100dvh; padding:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px)); }
+    .glow-cursor{ display:none; }
+    .card{ margin:auto; padding:22px 18px 20px; border-radius:18px; }
+    .flask-icon{ width:72px; height:72px; }
+    h1 .h1-small{ font-size:.9rem; }
+    h1 .h1-large{ font-size:clamp(1.4rem,7vw,1.7rem); }
+    .sub{ font-size:.82rem; margin-bottom:20px; }
+    .elem{ width:48px; height:48px; }
+    .elem .sym{ font-size:1rem; }
+    .elem .nam{ font-size:.38rem; }
+    .elem .num{ font-size:.45rem; }
+  }
+  @media (max-width:360px){
+    .card{ padding:18px 14px; }
+    h1 .h1-large{ font-size:1.35rem; }
+  }
+  @media (hover:none), (pointer:coarse){
+    .glow-cursor{ display:none; }
+    .elem:hover .elem-face{ transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-mol" id="bgMol"></div>
+<div class="glow-cursor" id="glowCursor"></div>
+
+<div class="card">
+  <svg class="flask-icon" id="flaskIcon" viewBox="0 0 64 72" fill="none">
+    <defs>
+      <linearGradient id="flaskLiquid" x1="0" y1="0" x2="0" y2="1">
+        <stop id="liqStop1" offset="0%" stop-color="#8de85a"/>
+        <stop id="liqStop2" offset="100%" stop-color="#3fae3f"/>
+      </linearGradient>
+      <clipPath id="flaskClip">
+        <path d="M22 30L10 54C7 60 11 64 17 64H47C53 64 57 60 54 54L42 30V30Z"/>
+      </clipPath>
+    </defs>
+    <!-- rising bubbles above the flask -->
+    <circle class="flask-bubble b1" cx="30" cy="8" r="2.3" fill="#bfeaff" opacity="0.9"/>
+    <circle class="flask-bubble b2" cx="38" cy="4" r="1.6" fill="#bfeaff" opacity="0.9"/>
+    <circle class="flask-bubble b3" cx="34" cy="14" r="1.3" fill="#bfeaff" opacity="0.9"/>
+    <!-- neck -->
+    <rect x="24" y="10" width="16" height="20" rx="3" fill="#dff6ff" stroke="#2b2350" stroke-width="2.5"/>
+    <!-- flask body outline -->
+    <path d="M24 28L11 53C8 59 12 64 18 64H46C52 64 56 59 53 53L40 28Z" fill="#eaf9ff" stroke="#2b2350" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- liquid fill clipped to body -->
+    <g clip-path="url(#flaskClip)">
+      <rect x="8" y="42" width="48" height="24" fill="url(#flaskLiquid)"/>
+      <circle class="flask-bubble b4" cx="24" cy="56" r="1.8" fill="#c9ffb0" opacity="0.8"/>
+      <circle class="flask-bubble b5" cx="40" cy="58" r="1.4" fill="#c9ffb0" opacity="0.8"/>
+    </g>
+    <!-- cute face -->
+    <circle class="flask-eye left" cx="26" cy="52" r="2.6" fill="#2b2350"/>
+    <circle class="flask-eye right" cx="38" cy="52" r="2.6" fill="#2b2350"/>
+    <path class="flask-mouth" d="M28 57 Q32 60 36 57" stroke="#2b2350" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <ellipse cx="20" cy="55" rx="2.2" ry="1.3" fill="#ff9ec4" opacity="0.7"/>
+    <ellipse cx="44" cy="55" rx="2.2" ry="1.3" fill="#ff9ec4" opacity="0.7"/>
+    <!-- glass shine -->
+    <path d="M27 32L18 51" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  </svg>
+  <h1><span class="h1-small">Welcome to the</span><span class="h1-large">Visual Chemistry Lab</span></h1>
+  <p class="sub">Enter your details to join the periodic party ⚗️</p>
+
+  <form id="chemForm">
+    <div class="field">
+      <label for="name">Student Name</label>
+      <input type="text" id="name" placeholder="e.g. Aditi Sharma" required>
+    </div>
+
+    <div class="field">
+      <label for="board">Select Board</label>
+      <select id="board" required>
+        <option value="" disabled selected>Choose your board</option>
+        <option>CBSE</option>
+        <option>ICSE</option>
+        <option>State Board</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="class">Select Class</label>
+      <select id="class" required>
+        <option value="" disabled selected>Choose your class</option>
+        <option>Class 9</option>
+        <option>Class 10</option>
+        <option>Class 11</option>
+        <option>Class 12</option>
+      </select>
+    </div>
+
+    <button type="submit">Enter the Lab →</button>
+  </form>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+  // periodic element tiles
+  const bgMol = document.getElementById('bgMol');
+  const elements = [
+    ['1','H','Hydrogen','#7c4dff','1.008 u · Nonmetal'],
+    ['2','He','Helium','#b388ff','4.003 u · Noble gas'],
+    ['6','C','Carbon','#00ffc8','12.01 u · Basis of life'],
+    ['7','N','Nitrogen','#00e5ff','14.01 u · 78% of air'],
+    ['8','O','Oxygen','#00ffc8','16.00 u · We breathe it'],
+    ['11','Na','Sodium','#ff2e9f','22.99 u · Reacts w/ water'],
+    ['12','Mg','Magnesium','#ff2e9f','24.31 u · Burns bright'],
+    ['17','Cl','Chlorine','#00ffa3','35.45 u · Disinfectant'],
+    ['19','K','Potassium','#ff4d6d','39.10 u · In bananas'],
+    ['20','Ca','Calcium','#ff4d6d','40.08 u · Builds bones'],
+    ['26','Fe','Iron','#ffe600','55.85 u · Magnetic metal'],
+    ['29','Cu','Copper','#ff9100','63.55 u · Great conductor'],
+    ['47','Ag','Silver','#ffe600','107.9 u · Shiniest metal'],
+    ['79','Au','Gold','#ffd700','197.0 u · Never rusts'],
+    ['16','S','Sulfur','#ccff00','32.07 u · Smells rotten'],
+    ['15','P','Phosphorus','#ccff00','30.97 u · Glows faintly'],
+    ['9','F','Fluorine','#00ffc8','19.00 u · Most reactive'],
+    ['30','Zn','Zinc','#ff9100','65.38 u · In sunscreen']
+  ];
+  const TILE = 64;
+  const tileState = [];
+  const W0 = window.innerWidth, H0 = window.innerHeight;
+  for(let i=0;i<14;i++){
+    const el = elements[Math.floor(Math.random()*elements.length)];
+    const tile = document.createElement('div');
+    tile.className='elem';
+    tile.style.color = el[3];
+    tile.innerHTML = `<div class="elem-inner">
+      <div class="elem-face front">
+        <span class="num">${el[0]}</span><span class="sym">${el[1]}</span><span class="nam">${el[2]}</span>
+      </div>
+      <div class="elem-face back">${el[4]}</div>
+    </div>`;
+    bgMol.appendChild(tile);
+    const x = Math.random()*(W0-TILE), y = Math.random()*(H0-TILE);
+    tile.style.left = x+'px';
+    tile.style.top = y+'px';
+    const speed = 0.35;
+    let vx = (Math.random()-0.5)*speed*2 || speed;
+    let vy = (Math.random()-0.5)*speed*2 || speed;
+    tileState.push({ el: tile, x, y, vx, vy });
+  }
+
+  // bounce physics: elements collide with each other and screen edges instead of overlapping
+  function stepPhysics(){
+    const W = window.innerWidth, H = window.innerHeight;
+    for(const s of tileState){
+      s.x += s.vx; s.y += s.vy;
+      if(s.x < 0){ s.x = 0; s.vx *= -1; }
+      if(s.x > W-TILE){ s.x = W-TILE; s.vx *= -1; }
+      if(s.y < 0){ s.y = 0; s.vy *= -1; }
+      if(s.y > H-TILE){ s.y = H-TILE; s.vy *= -1; }
+    }
+    for(let i=0;i<tileState.length;i++){
+      for(let j=i+1;j<tileState.length;j++){
+        const a = tileState[i], b = tileState[j];
+        const dx = (b.x+TILE/2) - (a.x+TILE/2);
+        const dy = (b.y+TILE/2) - (a.y+TILE/2);
+        const dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
+        if(dist < TILE*0.9){
+          const nx = dx/dist, ny = dy/dist;
+          const overlap = (TILE*0.9 - dist)/2;
+          a.x -= nx*overlap; a.y -= ny*overlap;
+          b.x += nx*overlap; b.y += ny*overlap;
+          const va = a.vx*nx + a.vy*ny;
+          const vb = b.vx*nx + b.vy*ny;
+          a.vx += (vb-va)*nx; a.vy += (vb-va)*ny;
+          b.vx += (va-vb)*nx; b.vy += (va-vb)*ny;
+        }
+      }
+    }
+    for(const s of tileState){
+      s.el.style.left = s.x+'px';
+      s.el.style.top = s.y+'px';
+    }
+    requestAnimationFrame(stepPhysics);
+  }
+  requestAnimationFrame(stepPhysics);
+
+  for(let i=0;i<18;i++){
+    const b = document.createElement('div');
+    b.className='bubble';
+    const size = 6 + Math.random()*18;
+    b.style.width = size+'px';
+    b.style.height = size+'px';
+    b.style.left = (Math.random()*100)+'%';
+    b.style.animationDuration = (8 + Math.random()*10)+'s';
+    b.style.animationDelay = (Math.random()*10)+'s';
+    bgMol.appendChild(b);
+  }
+
+  // cursor glow follows pointer, tints toward nearest tile color on hover
+  const glow = document.getElementById('glowCursor');
+  window.addEventListener('pointermove', (e)=>{
+    glow.style.left = e.clientX+'px';
+    glow.style.top = e.clientY+'px';
+  });
+
+  // click a tile: burst of colored sparks
+  bgMol.addEventListener('click', (e)=>{
+    const tile = e.target.closest('.elem');
+    if(!tile) return;
+    tile.classList.toggle('flipped');
+    const color = tile.style.color;
+    glow.style.background = `radial-gradient(circle, ${color}33, transparent 70%)`;
+    const rect = tile.getBoundingClientRect();
+    for(let i=0;i<10;i++){
+      const spark = document.createElement('div');
+      spark.style.position='fixed';
+      spark.style.left = (rect.left+rect.width/2)+'px';
+      spark.style.top = (rect.top+rect.height/2)+'px';
+      spark.style.width='6px';
+      spark.style.height='6px';
+      spark.style.borderRadius='50%';
+      spark.style.background=color;
+      spark.style.boxShadow=`0 0 8px ${color}`;
+      spark.style.zIndex=6;
+      spark.style.pointerEvents='none';
+      const ang = Math.random()*Math.PI*2;
+      const dist = 40+Math.random()*60;
+      spark.animate([
+        { transform:'translate(0,0)', opacity:1 },
+        { transform:`translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`, opacity:0 }
+      ], { duration: 600+Math.random()*400, easing:'ease-out' });
+      document.body.appendChild(spark);
+      setTimeout(()=>spark.remove(), 1100);
+    }
+    tile.style.transform = 'scale(1.5)';
+    setTimeout(()=>{ tile.style.transform=''; }, 250);
+  });
+
+  // interactive flask logo: click cycles liquid color + spark burst + glow
+  const flaskPairs = [
+    ['#8de85a','#3fae3f'], ['#00e5ff','#0088cc'], ['#ff7fc8','#c92e88'],
+    ['#ffe066','#ff9100'], ['#b38dff','#7c4dff']
+  ];
+  let flaskIdx = 0;
+  const flaskIcon = document.getElementById('flaskIcon');
+  const liqStop1 = document.getElementById('liqStop1');
+  const liqStop2 = document.getElementById('liqStop2');
+  flaskIcon.addEventListener('click', ()=>{
+    flaskIdx = (flaskIdx+1) % flaskPairs.length;
+    const [c1,c2] = flaskPairs[flaskIdx];
+    liqStop1.setAttribute('stop-color', c1);
+    liqStop2.setAttribute('stop-color', c2);
+    flaskIcon.style.setProperty('--flask-glow', c1);
+    flaskIcon.classList.add('winking');
+    setTimeout(()=> flaskIcon.classList.remove('winking'), 350);
+    const rect = flaskIcon.getBoundingClientRect();
+    for(let i=0;i<8;i++){
+      const spark = document.createElement('div');
+      spark.style.position='fixed';
+      spark.style.left = (rect.left+rect.width/2)+'px';
+      spark.style.top = (rect.top+rect.height*0.7)+'px';
+      spark.style.width='5px';
+      spark.style.height='5px';
+      spark.style.borderRadius='50%';
+      spark.style.background=c1;
+      spark.style.boxShadow=`0 0 8px ${c1}`;
+      spark.style.zIndex=6;
+      spark.style.pointerEvents='none';
+      const ang = Math.random()*Math.PI*2;
+      const dist = 30+Math.random()*50;
+      spark.animate([
+        { transform:'translate(0,0)', opacity:1 },
+        { transform:`translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`, opacity:0 }
+      ], { duration: 500+Math.random()*400, easing:'ease-out' });
+      document.body.appendChild(spark);
+      setTimeout(()=>spark.remove(), 1000);
+    }
+  });
+
+  document.getElementById('chemForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const board = document.getElementById('board').value;
+    const cls = document.getElementById('class').value;
+    const result = document.getElementById('result');
+    result.innerHTML = `Welcome, <b>${name || 'Student'}</b>! 🧪<br>Board: <b>${board}</b> &nbsp;|&nbsp; Class: <b>${cls}</b><br>Opening your lab…`;
+    result.classList.add('show');
+    try{ localStorage.setItem('chemName', name); localStorage.setItem('chemBoard', board); localStorage.setItem('chemClass', cls); }catch(_){}
+    setTimeout(()=>{
+      location.href = `lab.html?name=${encodeURIComponent(name)}&board=${encodeURIComponent(board)}&class=${encodeURIComponent(cls)}`;
+    }, 800);
+  });
+</script>
+
+</body>
+</html>

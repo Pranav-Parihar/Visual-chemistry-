@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Lab — Visual Chemistry Lab</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00796B">
+<script src="chem-features.js" defer></script>
+<style>
+:root{--bg1:#FFF8DC;--bg2:#EDF97B;--accent:#00796B;--card:#FFFEF5;--text:#2E2A08;color-scheme:light}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(160deg,var(--bg1) 0%,#FFFBEA 40%,var(--bg2) 100%);background-attachment:fixed;color:var(--text);padding:12px 12px 40px;min-height:100dvh;font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin:0 auto;width:100%}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar a{text-decoration:none;color:#fff;background:linear-gradient(90deg,#00897B,#558B2F);padding:12px 18px;border-radius:10px;font-weight:700;min-height:44px;display:inline-flex;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.hero{background:#FFFEF7;border:2px solid #E3D67A;border-radius:20px;padding:18px 20px;margin-bottom:12px;box-shadow:0 10px 28px rgba(180,160,40,.25)}
+.hero h1{margin:0;font-size:clamp(1.2rem,4.5vw,1.6rem);background:linear-gradient(90deg,#E65100,#2E7D32);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#6D6410;margin:4px 0 10px;font-size:.9rem;font-weight:600}
+.student{background:#FFF6C9;border:1px solid #D9C94A;border-radius:12px;padding:10px 14px;font-size:.9rem;color:#3A3405}
+.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.panel{background:#FFFEF7;border:1.5px solid #E3D67A;border-radius:16px;padding:16px;box-shadow:0 6px 20px rgba(180,160,40,.2);min-width:0}
+.panel h2{margin:0 0 8px;font-size:1.05rem;color:#1F1B02}
+.panel h3{margin:14px 0 6px;font-size:.95rem;color:#00796B}
+.bench{width:100%;height:auto;display:block;background:#FFFDE7;border:1px solid #D9C94A;border-radius:12px}
+.vessel-btns{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin:8px 0;padding-bottom:2px}
+.vessel-btns button{flex:1 0 auto;padding:8px 10px;border-radius:10px;border:1.5px solid #CFC15A;background:#fff;font-weight:700;cursor:pointer;min-height:42px;font-size:.78rem;color:#3A3405;white-space:nowrap}
+.vessel-btns button.active{background:linear-gradient(90deg,#FFE600,#8BC34A);border-color:#7AA93A;color:#1A3000}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.field{flex:1 1 140px;min-width:0}
+label{display:block;font-size:.75rem;font-weight:700;color:#00796B;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+select,input[type=range]{width:100%;min-height:44px}
+select{padding:10px;border-radius:10px;border:1.5px solid #CFC15A;background:#FFFDE7;font-size:15px}
+input[type=range]{accent-color:#00796B}
+.amt-val{font-weight:800;color:#1F1B02}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.action-grid button,.big-btn{padding:13px;border:none;border-radius:12px;font-weight:800;cursor:pointer;min-height:48px;font-size:.92rem;color:#fff;background:linear-gradient(90deg,#00897B,#558B2F);box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.action-grid button.secondary{background:#3A3405}
+.action-grid button:active,.big-btn:active{transform:scale(.98)}
+.big-btn{width:100%;margin-top:10px}
+.big-btn:disabled{opacity:.45;cursor:not-allowed}
+.steps{list-style:none;margin:8px 0;padding:0}
+.steps li{display:flex;gap:8px;align-items:flex-start;background:#FFF6C9;border:1px solid #E3D67A;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:.86rem}
+.steps li.done{opacity:.75;text-decoration:line-through}
+.steps button{flex:0 0 auto;padding:8px 12px;border-radius:8px;border:1px solid #7AA93A;background:#fff;font-weight:700;cursor:pointer;min-height:40px}
+.progress{height:10px;background:#EDE7C8;border-radius:999px;overflow:hidden;margin:6px 0}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00897B,#558B2F)}
+.log{background:#FFFDE7;border:1px solid #D9C94A;border-radius:10px;padding:10px;max-height:220px;overflow:auto;font-size:.84rem}
+.log div{padding:5px 6px;border-bottom:1px dashed #D9C94A}
+.logbox{margin-top:12px;border:1px solid #D9C94A;border-radius:10px;background:#FFFDE7}
+.logbox summary{cursor:pointer;font-weight:800;color:#00796B;padding:10px 12px;min-height:44px;display:flex;align-items:center;font-size:.88rem;list-style:none}
+.logbox summary::-webkit-details-marker{display:none}
+.logbox .log{border:none;border-top:1px dashed #D9C94A;border-radius:0 0 10px 10px;max-height:140px}
+.log div:last-child{border-bottom:none}
+.meters{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-top:8px}
+.meter{flex:1 0 auto;min-width:78px;background:#FFF6C9;border:1px solid #D9C94A;border-radius:10px;padding:6px 8px;font-size:.7rem}
+.meter b{display:block;font-size:.88rem;color:#1F1B02}
+.pour-anim{transition:height .6s ease, y .6s ease}
+.flame{transform-origin:center;transform-box:fill-box}
+.flame.on{animation:flick .5s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scale(1)}50%{transform:scale(1.15) skewX(3deg)}}
+.bubble-rise{animation:rise 1.6s ease-in infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-46px);opacity:0}}
+.stirring{animation:stir .5s ease-in-out 4}
+@keyframes stir{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.hint{font-size:.82rem;color:#6D6410;background:#FFF6C9;border:1px solid #D9C94A;border-radius:10px;padding:8px 10px;margin-top:10px}
+#thermoFill{transition:all .8s ease}
+.sloshing{animation:slosh 1s ease-in-out;transform-box:fill-box;transform-origin:center}
+@keyframes slosh{0%,100%{transform:skewX(0)}25%{transform:skewX(-2.5deg)}50%{transform:skewX(2deg)}75%{transform:skewX(-1deg)}}
+#stirRod.dipping{animation:dip 1.3s ease-in-out}
+@keyframes dip{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(58px) rotate(-9deg)}60%{transform:translateY(58px) rotate(9deg)}}
+.fizz{animation:fizzUp 1.2s ease-out forwards}
+@keyframes fizzUp{0%{transform:translateY(0);opacity:.95}100%{transform:translateY(-95px);opacity:0}}
+#steam.steamOn path{animation:steamUp 2.4s linear infinite}
+@keyframes steamUp{0%{transform:translateY(10px);opacity:0}35%{opacity:.75}100%{transform:translateY(-16px);opacity:0}}
+#burnGlow.glowOn{animation:glowP 1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes glowP{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.22);opacity:.5}}
+.step-num{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:#00796B;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.steps li.current{border:2px solid #00796B;background:#fff}
+.steps li.done .step-num{background:#558B2F}
+.step-body{flex:1 1 auto;min-width:0}
+.step-title{font-weight:800;color:#1F1B02;font-size:.88rem}
+.step-line{margin:3px 0;font-size:.83rem}
+.step-line b{color:#00796B}
+.step-tip{font-size:.78rem;color:#6D6410;font-style:italic}
+.vesselG{cursor:pointer}
+.bench-wrap{position:relative}
+.endpop{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(34,48,43,.5);border-radius:12px;padding:14px;z-index:5}
+.endpop.open{display:flex}
+.endcard{background:#FFFDE7;border:2px solid #D9C94A;border-radius:14px;max-width:430px;width:100%;max-height:100%;overflow:auto;padding:14px;font-size:.85rem}
+.step-count{font-size:.78rem;font-weight:800;color:#00796B;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.step-dots{display:flex;gap:6px;margin-bottom:8px}
+.dot{width:26px;height:26px;border-radius:50%;border:1.5px solid #CFC15A;background:#fff;font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6D6410}
+.dot.ok{background:#558B2F;border-color:#558B2F;color:#fff}
+.dot.now{border:2px solid #00796B;color:#00796B}
+.step-nav{display:flex;gap:8px;margin-top:4px}
+.step-nav button{flex:1;padding:10px;border-radius:10px;border:1.5px solid #CFC15A;background:#fff;font-weight:800;cursor:pointer;min-height:44px;font-size:.85rem;color:#3A3405}
+.step-nav button.primary{background:linear-gradient(90deg,#00897B,#558B2F);color:#fff;border:none}
+.step-nav button:disabled{opacity:.4;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid #D9C94A;border-radius:999px;padding:2px 10px 2px 3px;font-size:.75rem;font-weight:700;margin:3px 5px 0 0;color:#1F1B02}
+.chip i{width:18px;height:18px;border-radius:50%;border:1px solid #888;display:inline-block}
+.verdict{margin-top:8px;padding:10px;border-radius:10px;font-weight:800;text-align:center}
+.verdict.ok{background:#E8F5E9;border:1.5px solid #2E7D32;color:#1B5E20}
+.verdict.no{background:#FDECEA;border:1.5px solid #C62828;color:#7B1A1A}
+.verdict-btns{display:flex;gap:8px;margin-top:8px}
+.verdict-btns button{flex:1;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;min-height:48px;border:none;color:#fff}
+#btnMatch{background:linear-gradient(90deg,#2E7D32,#558B2F)}
+#btnNoMatch{background:linear-gradient(90deg,#C62828,#E65100)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}}
+.take{font-size:.8rem;color:#6D6410;margin-top:4px;background:#FFF6C9;border:1px dashed #D9C94A;border-radius:8px;padding:6px 8px}
+.mobilebar{display:none}
+@media(max-width:860px){
+body{padding-bottom:32px}
+.mobilebar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;background:#FFFEF7;border-top:2px solid #D9C94A;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));gap:8px;align-items:stretch;box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+.mobilebar button{flex:1;min-height:54px;border-radius:10px;font-weight:800;font-size:.85rem;border:none;color:#fff;background:linear-gradient(90deg,#00897B,#558B2F);cursor:pointer;padding:6px 4px}
+.mobilebar button.secondary{background:#3A3405}
+.mobilebar button:active{transform:scale(.97)}
+#mbProg{flex:0 0 auto;align-self:center;font-size:.78rem;font-weight:800;color:#00796B;min-width:34px;text-align:center}
+}
+@media(max-width:640px){
+body{padding:10px 10px 32px}
+.topbar{flex-direction:column;align-items:stretch}
+.topbar a{justify-content:center;text-align:center;min-height:52px;font-size:1rem}
+.hero{padding:14px}
+.panel{padding:12px}
+.vessel-btns{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px}
+.vessel-btns button{flex:0 0 auto;min-height:40px;font-size:.75rem;padding:8px 10px;white-space:nowrap}
+.action-grid{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding-bottom:2px}
+.action-grid button{flex:1 0 auto;min-height:44px;font-size:.75rem;padding:8px 10px;white-space:nowrap}
+.big-btn{min-height:50px;font-size:.9rem}
+.row{flex-wrap:nowrap}
+.field{flex:1 1 0;min-width:0}
+.log{max-height:150px}
+.hint{font-size:.74rem;padding:6px 8px;margin-top:8px}
+select{min-height:52px;font-size:16px}
+input[type=range]{min-height:52px}
+.step-nav{flex-direction:column}
+.step-nav button{min-height:52px;font-size:.95rem}
+.steps button{min-height:48px}
+.verdict-btns{flex-direction:column}
+.verdict-btns button{min-height:54px;font-size:.95rem}
+.meters{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto}
+.meter{flex:1 0 auto;min-width:74px;font-size:.68rem;padding:6px 8px}
+.meter b{font-size:.85rem}
+.endpop{padding:8px}
+.endcard{padding:12px;font-size:.82rem}
+.log{max-height:180px}
+h1{font-size:1.25rem}
+.hero h1{font-size:1.02rem;line-height:1.25}
+.hero .sub{display:none}
+.hero .student{font-size:.72rem;padding:6px 10px;margin-top:6px}
+.hero{padding:10px 12px;margin-bottom:8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar">
+<a href="lab.html">← Back to Experiments</a>
+</div>
+<div class="hero">
+<h1 id="expTitle">The Lab</h1>
+<p class="sub" id="expSub">Interactive practical bench</p>
+<div class="student" id="studentBar">Loading…</div>
+</div>
+<div class="layout">
+<div class="panel">
+<h2>Lab Bench — click equipment to use it</h2>
+<div class="bench-wrap">
+<svg class="bench" id="bench" viewBox="0 0 520 340" role="img" aria-label="Interactive lab bench">
+<!-- table -->
+<rect x="0" y="288" width="520" height="52" fill="#D9C94A"/>
+<rect x="0" y="288" width="520" height="8" fill="#B8A93E"/>
+<!-- shelf with reagent bottles -->
+<rect x="20" y="18" width="200" height="8" fill="#8a7a2e"/>
+<g id="shelfBottles"></g>
+<!-- main vessels: one distinct drawing per option, only the active one is shown -->
+<defs>
+<clipPath id="flaskClip"><path d="M205 156 L160 264 L270 264 L225 156 Z"/></clipPath>
+</defs>
+<g id="vBeaker" class="vesselG">
+<rect x="150" y="130" width="130" height="140" rx="6" fill="#eaf6ff" stroke="#2b2350" stroke-width="3"/>
+<rect x="155" y="150" width="120" height="110" fill="#FFFDE7" id="liqBeaker" class="pour-anim"/>
+<line x1="150" y="165" x2="280" y2="165" stroke="#2b2350" stroke-width="1" opacity=".25"/>
+<line x1="150" y="205" x2="280" y2="205" stroke="#2b2350" stroke-width="1" opacity=".25"/>
+<line x1="150" y="245" x2="280" y2="245" stroke="#2b2350" stroke-width="1" opacity=".25"/>
+<path d="M150 130 L170 130 L165 145 L150 145 Z" fill="#eaf6ff" stroke="#2b2350" stroke-width="3"/>
+<text x="215" y="118" text-anchor="middle" font-size="14" font-weight="800" fill="#2b2350">BEAKER</text>
+</g>
+<g id="vFlask" class="vesselG" visibility="hidden">
+<rect x="200" y="116" width="30" height="36" fill="#eaf6ff" stroke="#2b2350" stroke-width="3"/>
+<path d="M200 150 L148 270 L282 270 L230 150 Z" fill="#eaf6ff" stroke="#2b2350" stroke-width="3" stroke-linejoin="round"/>
+<g clip-path="url(#flaskClip)"><rect x="148" y="160" width="134" height="104" fill="#FFFDE7" id="liqFlask" class="pour-anim"/></g>
+<line x1="176" y="220" x2="254" y2="220" stroke="#2b2350" stroke-width="1" opacity=".25"/>
+<line x1="168" y="244" x2="262" y2="244" stroke="#2b2350" stroke-width="1" opacity=".25"/>
+<text x="215" y="106" text-anchor="middle" font-size="14" font-weight="800" fill="#2b2350">FLASK</text>
+</g>
+<g id="vTube" class="vesselG" visibility="hidden">
+<rect x="192" y="138" width="46" height="134" rx="23" fill="#eaf6ff" stroke="#2b2350" stroke-width="3"/>
+<rect x="197" y="150" width="36" height="112" rx="18" fill="#FFFDE7" id="liqTube" class="pour-anim"/>
+<rect x="186" y="126" width="58" height="12" rx="3" fill="#8a7a2e" stroke="#2b2350" stroke-width="2"/>
+<text x="215" y="114" text-anchor="middle" font-size="14" font-weight="800" fill="#2b2350">TEST TUBE</text>
+</g>
+<g id="vBurette" class="vesselG" visibility="hidden">
+<rect x="198" y="106" width="34" height="122" fill="#eaf6ff" stroke="#2b2350" stroke-width="3"/>
+<rect x="202" y="112" width="26" height="106" fill="#FFFDE7" id="liqBurette" class="pour-anim"/>
+<line x1="198" y="130" x2="214" y2="130" stroke="#2b2350" stroke-width="1.5"/>
+<line x1="198" y="150" x2="214" y2="150" stroke="#2b2350" stroke-width="1.5"/>
+<line x1="198" y="170" x2="214" y2="170" stroke="#2b2350" stroke-width="1.5"/>
+<line x1="198" y="190" x2="214" y2="190" stroke="#2b2350" stroke-width="1.5"/>
+<rect x="206" y="228" width="18" height="12" fill="#9db3c8" stroke="#2b2350" stroke-width="2"/>
+<line x1="206" y1="234" x2="232" y2="234" stroke="#E65100" stroke-width="4" stroke-linecap="round"/>
+<path d="M208 240 L222 240 L218 258 L212 258 Z" fill="#eaf6ff" stroke="#2b2350" stroke-width="2"/>
+<text x="215" y="96" text-anchor="middle" font-size="14" font-weight="800" fill="#2b2350">BURETTE</text>
+<text x="248" y="150" font-size="10" font-weight="700" fill="#2b2350">mL</text>
+</g>
+<!-- stir rod -->
+<g id="stirRod" style="cursor:pointer">
+<rect x="300" y="90" width="10" height="150" rx="5" fill="#8a7a2e" stroke="#2b2350" stroke-width="2"/>
+<circle cx="305" cy="84" r="12" fill="#558B2F" stroke="#2b2350" stroke-width="2"/>
+<text x="305" y="270" text-anchor="middle" font-size="11" font-weight="700">STIR (click)</text>
+</g>
+<!-- burner -->
+<g id="burner" style="cursor:pointer">
+<rect x="350" y="230" width="70" height="58" rx="6" fill="#6d6410" stroke="#2b2350" stroke-width="3"/>
+<rect x="372" y="208" width="26" height="26" fill="#3A3405"/>
+<circle id="burnGlow" cx="385" cy="190" r="36" fill="#FF8F00" opacity=".3" visibility="hidden"/>
+<g id="flame" class="flame" visibility="hidden">
+<path d="M385 212 C366 190 376 164 385 148 C394 164 404 190 385 212 Z" fill="#E65100" opacity=".9"/>
+<path d="M385 208 C372 190 380 172 385 160 C390 172 398 190 385 208 Z" fill="#FF8F00" stroke="#E65100" stroke-width="2"/>
+<path d="M385 208 C380 198 382 188 385 182 C388 188 390 198 385 208 Z" fill="#FFE600"/>
+<ellipse cx="385" cy="206" rx="7" ry="4" fill="#4FC3F7"/>
+</g>
+<text x="385" y="304" text-anchor="middle" font-size="11" font-weight="700">BURNER (click)</text>
+</g>
+<!-- thermometer -->
+<g id="thermo" style="cursor:pointer">
+<rect x="60" y="120" width="22" height="130" rx="11" fill="#fff" stroke="#2b2350" stroke-width="3"/>
+<rect x="64" y="150" width="14" height="80" fill="#C62828" id="thermoFill"/>
+<circle cx="71" cy="242" r="14" fill="#C62828" stroke="#2b2350" stroke-width="3"/>
+<text x="71" y="272" text-anchor="middle" font-size="11" font-weight="700">TEMP</text>
+</g>
+<!-- test tubes rack -->
+<g id="tubeRack" style="cursor:pointer">
+<rect x="440" y="240" width="60" height="48" fill="#8a7a2e" stroke="#2b2350" stroke-width="2"/>
+<rect x="448" y="170" width="14" height="80" rx="7" fill="#eaf6ff" stroke="#2b2350" stroke-width="2"/>
+<rect x="470" y="170" width="14" height="80" rx="7" fill="#eaf6ff" stroke="#2b2350" stroke-width="2"/>
+<text x="470" y="304" text-anchor="middle" font-size="11" font-weight="700">TUBES</text>
+</g>
+<rect id="pourJet" x="212" y="30" width="7" height="86" rx="3.5" fill="#4FC3F7" visibility="hidden" opacity=".85"/>
+<g id="steam" visibility="hidden"><path d="M198 108 q7 -13 0 -26 q-7 -13 0 -26" stroke="#B0BEC5" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M232 108 q-7 -13 0 -26 q7 -13 0 -26" stroke="#CFD8DC" stroke-width="3.5" fill="none" stroke-linecap="round" style="animation-delay:1.1s"/></g>
+<g id="fx"></g>
+<g id="gasBubbles"></g>
+</svg>
+<div class="endpop" id="endPop"></div>
+</div>
+<div class="vessel-btns" id="vesselBtns">
+<button data-v="beaker" class="active">Beaker (100 mL)</button>
+<button data-v="flask">Conical Flask (100 mL)</button>
+<button data-v="testtube">Test Tube (20 mL)</button>
+<button data-v="burette">Burette (50 mL)</button>
+</div>
+<div class="meters">
+<div class="meter">Volume<b id="mVol">0 mL</b></div>
+<div class="meter">Temperature<b id="mTemp">25 °C</b></div>
+<div class="meter">Contents<b id="mCont">empty</b></div>
+<div class="meter">Progress<b id="mProg">0 / 5 steps</b></div>
+</div>
+<div class="hint" id="benchHint">Tip: pick a vessel, add a reagent with an amount, then heat or stir. Follow the 5 procedure steps on the right.</div>
+</div>
+<div class="panel">
+<h2>Controls</h2>
+<div class="row">
+<div class="field">
+<label for="reagent">Reagent / solution</label>
+<select id="reagent"></select>
+</div>
+<div class="field">
+<label for="amount">Amount (<span id="amtUnit">mL</span>): <span class="amt-val" id="amtVal">5</span></label>
+<input type="range" id="amount" min="1" max="20" value="5" step="1">
+</div>
+</div>
+<div class="action-grid">
+<button id="btnAdd">Add to Vessel</button>
+<button id="btnHeat" class="secondary">Burner: OFF</button>
+<button id="btnStir" class="secondary">Stir / Shake</button>
+<button id="btnFilter" class="secondary">Filter</button>
+</div>
+<div class="row" style="margin-top:10px">
+<div class="field">
+<label for="heatTime">Heating time (sec per click): <span class="amt-val" id="heatVal">10</span></label>
+<input type="range" id="heatTime" min="5" max="60" value="10" step="5">
+<div class="take" id="heatGuide"></div>
+</div>
+</div>
+<button class="big-btn" id="btnReset" style="background:#3A3405">Reset Bench</button>
+<h3>Procedure — how this practical works</h3>
+<div class="progress"><i id="progBar"></i></div>
+<div class="steps" id="steps"></div>
+<details class="logbox" id="logBox">
+<summary>Observation log (<span id="logCount">0</span>) — tap to expand</summary>
+<div class="log" id="log"></div>
+</details>
+<button class="big-btn" id="btnFinish" disabled>Finish Practical</button>
+<div class="hint" id="finishHint">Complete all 5 steps to finish and see your result.</div>
+</div>
+</div>
+</div>
+<script>
+const DATA={
+"Class 9":[
+{no:1,title:"True Solution, Suspension & Colloidal Solution",aim:"Prepare true solution of NaCl, suspension of chalk, colloidal starch and distinguish by transparency, filtration, stability.",reagents:"5.0 g NaCl in 100 mL water | 5.0 g chalk in 100 mL water | 1.0 g starch paste in 100 mL boiling water.",theory:"True <1nm, passes filter, stable. Suspension >1000nm, settles, residue. Colloid 1-1000nm, Tyndall effect, passes filter.",obs:"NaCl: clear, passes, stable | Chalk: opaque, residue, settles | Starch: translucent, passes, stable.",precaution:"Mix starch in 5 mL cold water before boiling water. Separate glass rods.",result:"True=clear stable; Suspension=settles+residue; Colloid=translucent stable."},
+{no:2,title:"Separation of Sand, Salt & Ammonium Chloride",aim:"Separate 5.0 g mixture (1.5 g sand +1.5 g NaCl +2.0 g NH4Cl).",reagents:"5 g mixture, 30 mL water, china dish, inverted funnel, burner.",theory:"Sublimation: NH4Cl(s) to NH4Cl(g). Solubility: NaCl dissolves, sand not. Evaporation recovers NaCl.",obs:"Heat with funnel: 2.0 g NH4Cl sublime. Add water, filter: 1.5 g sand. Evaporate filtrate: 1.5 g NaCl.",precaution:"Tight cotton plug. Gentle evaporation to avoid sputtering.",result:"Separated into 2.0 g NH4Cl, 1.5 g sand, 1.5 g NaCl."},
+{no:3,title:"Physical vs Chemical Changes",aim:"Distinguish using Fe+S mixture/compound and Mg burning.",reagents:"7.0 g Fe, 4.0 g S, 5 cm Mg ribbon, magnet, 2 mL CS2.",theory:"Fe+S to FeS (11 g black). 2Mg+O2 to 2MgO white ash.",obs:"Mixture: magnetic, S dissolves in CS2 = physical. Compound FeS: non-magnetic, insoluble = chemical.",precaution:"Do not look at burning Mg. CS2 away from flame.",result:"Mixing=physical; Heating to FeS and burning Mg=chemical."},
+{no:4,title:"Heat on CuCO3 & Zinc Nitrate",aim:"Thermal decomposition of 2 g CuCO3 and 2 g Zn(NO3)2.6H2O.",reagents:"2 g CuCO3 green, 2 g Zn nitrate, 5 mL lime water, delivery tube.",theory:"CuCO3 to CuO (1.28 g black) plus CO2. 2Zn(NO3)2 to 2ZnO plus 4NO2 brown plus O2.",obs:"CuCO3 green to black, lime milky. Zn nitrate: brown NO2, residue yellow hot/white cold.",precaution:"Remove tube before stopping heat. Fume hood for NO2.",result:"CuCO3 to CuO plus CO2. Zn nitrate to ZnO plus NO2 plus O2."},
+{no:5,title:"Identification of Gases CO2, SO2, Cl2, NH3",aim:"Generate and confirm 4 gases.",reagents:"CO2: 1g CaCO3 + 5mL dil HCl + 5mL lime water | SO2: 1g Na2SO3 + 5mL dil H2SO4 + 2mL acidified K2Cr2O7 | Cl2: 1g MnO2 + 3mL conc HCl + heat + starch-iodide paper | NH3: 1g NH4Cl + 5mL 2M NaOH + heat + HCl rod.",theory:"CO2 gives lime milky. SO2 gives dichromate orange to green. Cl2 gives starch-iodide blue-black. NH3 plus HCl gives NH4Cl white fumes.",obs:"CO2: lime milky. SO2: orange to green. Cl2: blue-black. NH3: dense white fumes.",precaution:"Cl2 and SO2 in ventilated area. Fresh lime water.",result:"CO2 milky, SO2 green, Cl2 blue-black, NH3 white fumes confirmed."}
+],
+"Class 10":[
+{no:1,title:"pH of Solutions with pH Paper",aim:"Measure pH of 6 samples (5 mL each, 1 drop per strip).",reagents:"0.1M HCl, lemon juice, 0.1M CH3COOH, water, 5 percent NaHCO3, 0.1M NaOH.",theory:"HCl 1-2 red strong acid. Lemon 2-3. Acetic 4-5. Water 7 green neutral. NaHCO3 8.5. NaOH 13-14 violet.",obs:"Colour chart as handbook p6.",precaution:"Wash dropper. Do not touch strips.",result:"Acid to base order confirmed."},
+{no:2,title:"Acids (HCl) & Bases (NaOH) Properties",aim:"Reactions with litmus, Zn, Na2CO3.",reagents:"2mL acid or base plus litmus. 1 g Zn plus 5 mL reagent. 0.5 g Na2CO3 plus 3 mL HCl. 3 mL lime water.",theory:"Zn plus 2HCl to ZnCl2 plus H2 pop. Zn plus 2NaOH to Na2ZnO2 plus H2. Na2CO3 plus 2HCl to 2NaCl plus H2O plus CO2 milky.",obs:"Blue litmus to red in acid. Red to blue in base.",precaution:"Careful H2 pop test.",result:"Acids give H2 plus CO2. Bases give H2, turn litmus blue."},
+{no:3,title:"Metal Reactivity: Zn, Fe, Cu",aim:"Single displacement in 5 mL 0.5M solutions with 0.5 g metal.",reagents:"CuSO4 blue, FeSO4 green, ZnSO4 plus Fe, Zn, Cu strips.",theory:"Fe plus CuSO4 to FeSO4 plus Cu. Zn plus CuSO4 to ZnSO4 plus Cu. Cu plus FeSO4 gives no reaction.",obs:"Blue fades to green or colourless with Fe or Zn. No change with Cu in FeSO4.",precaution:"Sandpaper metals. Wait 15 min.",result:"Reactivity: Zn above Fe above Cu."},
+{no:4,title:"Cations with NaOH",aim:"Identify Cu, Fe, Pb, Zn ions with NaOH.",reagents:"Cu blue ppt, Fe dirty green or brown, Pb white dissolves, Zn white dissolves.",theory:"Pb and Zn hydroxides dissolve in excess NaOH.",obs:"Only Pb, Zn dissolve in excess.",precaution:"Dropwise first, shake after excess.",result:"Amphoteric Pb, Zn versus insoluble Cu, Fe."},
+{no:5,title:"Acids on Carbonates, Sulphides, Sulphites",aim:"0.5 g salt plus 3 mL dil H2SO4.",reagents:"Na2CO3 to CO2 to lime milky. ZnS to H2S rotten to Pb acetate black. Na2SO3 to SO2 to dichromate green.",theory:"Equations handbook page 10.",obs:"Effervescence, smell, paper tests.",precaution:"Do not inhale H2S. Moisten papers.",result:"CO3, S, SO3 distinguished."}
+],
+"Class 11":[
+{no:1,title:"Standard 0.1M Oxalic Acid (250 mL)",aim:"Prepare M by 10 oxalic acid.",reagents:"Weigh 3.150 g oxalic acid. 150 mL distilled water. 250 mL flask.",theory:"Weigh 3.150 g, transfer with funnel, dissolve, make to 250 mL meniscus, invert 5 times.",obs:"Clear standard solution.",precaution:"No spill, eye-level meniscus.",result:"250 mL 0.1M ready."},
+{no:2,title:"Titration: NaOH versus Oxalic Acid",aim:"Find molarity and strength of NaOH.",reagents:"20 mL 0.1M oxalic acid. Phenolphthalein. NaOH in burette.",theory:"Neutralisation gives 0.20M NaOH, strength 8.00 g per L.",obs:"Faint pink 30 sec end point.",precaution:"Lower meniscus.",result:"0.20M, 8.00 g per L."},
+{no:3,title:"Anion Analysis",aim:"Detect CO3, S, Cl, NO3, SO4.",reagents:"Dil H2SO4 test. Conc H2SO4 test. BaCl2 test. Brown ring test.",theory:"Scheme handbook page 13.",obs:"Effervescence, fumes, ppt, ring.",precaution:"Fresh FeSO4, do not shake ring.",result:"Nitrate confirmed demo."},
+{no:4,title:"Cation Analysis",aim:"Groups 0 to III: NH4, Pb, Cu, Fe or Al.",reagents:"NaOH test. HCl test. H2S test. NH4Cl plus NH4OH test. Nessler test.",theory:"NH4Cl before NH4OH.",obs:"Group ppts.",precaution:"Clear original solution.",result:"NH4 confirmed demo."},
+{no:5,title:"Purify CuSO4 by Crystallisation",aim:"Pure CuSO4.5H2O from 10 g impure.",reagents:"10 g impure CuSO4. 25 mL water. 0.5 mL dil H2SO4.",theory:"H2SO4 prevents hydrolysis.",obs:"Blue crystals.",precaution:"Stop at crystallisation point, slow cooling.",result:"About 6.5 g pure."}
+],
+"Class 12":[
+{no:1,title:"KMnO4 versus FAS (Mohr Salt)",aim:"Molarity and strength of KMnO4.",reagents:"4.900 g FAS in 250 mL. 20 mL FAS aliquot. 20 mL 2N H2SO4. KMnO4 in burette.",theory:"Redox gives 0.01M KMnO4, 1.58 g per L. Self-indicator pink.",obs:"Permanent faint pink.",precaution:"Upper meniscus for KMnO4.",result:"0.01M, 1.58 g per L."},
+{no:2,title:"Alcohols and Phenols",aim:"Distinguish OH versus Ar-OH.",reagents:"EtOH plus Na. EtOH plus acetic acid. Phenol plus FeCl3. Phenol plus phthalic acid.",theory:"Alcohols give H2 and fruity ester. Phenols give violet and pink.",obs:"Effervescence, fruity, violet, pink.",precaution:"Dry forceps for Na, neutral FeCl3.",result:"Both groups confirmed."},
+{no:3,title:"Aldehydes versus Ketones",aim:"Distinguish with Tollen and Fehling.",reagents:"2,4-DNP test. Tollen test. Fehling A plus B test.",theory:"Aldehydes give silver mirror and red Cu2O. Ketones negative.",obs:"Formaldehyde positive, acetone negative.",precaution:"Water bath, clean tube.",result:"Aldehyde versus ketone distinguished."},
+{no:4,title:"Salt Analysis: NH4Cl",aim:"1 cation plus 1 anion.",reagents:"Dil acid test. Conc acid test. AgNO3 test. NaOH test. Nessler test.",theory:"Chloride and ammonium tests.",obs:"Table page 19.",precaution:"Hard glass, amber Nessler.",result:"NH4 plus Cl equals NH4Cl."},
+{no:5,title:"Food: Carbs, Proteins, Fats",aim:"Detect in extracts.",reagents:"Molisch test. Iodine test. Biuret test. Xanthoproteic test. Spot test. Acrolein test.",theory:"As handbook page 20.",obs:"Colours and smells.",precaution:"Careful conc acids.",result:"All food groups tested."}
+]
+};
+const qs=new URLSearchParams(location.search);
+const cls=qs.get('class')||localStorage.getItem('chemClass')||'Class 9';
+const expNo=+(qs.get('exp')||1);
+const qName=qs.get('name')||localStorage.getItem('chemName')||'Student';
+const qBoard=qs.get('board')||localStorage.getItem('chemBoard')||'';
+const exp=(DATA[cls]||DATA['Class 9']).find(e=>e.no===expNo)||DATA['Class 9'][0];
+const expKey=cls+'|'+exp.no;
+/* Expected final colours per experiment: compare these with your vessel to pass or fail */
+const EXPECT={
+'Class 9|1':{colors:[{c:'#EAF6FF',n:'NaCl: clear'},{c:'#FFFFFF',n:'chalk: white settles'},{c:'#F5F0DC',n:'starch: translucent'}],success:'Salt water turns clear, chalk sinks as a white layer, starch looks milky-translucent.',fail:'FAIL: all three beakers look identical, or nothing settles after 5 minutes.'},
+'Class 9|2':{colors:[{c:'#FFFFFF',n:'NH4Cl: white sublimate'},{c:'#E8D9A0',n:'sand: recovered'},{c:'#F8F8F8',n:'salt: white crystals'}],success:'White sublimate coats the funnel, sand stays on the filter, salt crystallises on evaporation.',fail:'FAIL: mixture still mixed together, no white coating inside the funnel.'},
+'Class 9|3':{colors:[{c:'#212121',n:'FeS: black mass'},{c:'#FAFAFA',n:'MgO: white ash'}],success:'Fe+S lump turns black and ignores the magnet; Mg ribbon leaves white ash.',fail:'FAIL: powder still sticks to the magnet — it was only mixed, not heated into FeS.'},
+'Class 9|4':{colors:[{c:'#212121',n:'CuO: black'},{c:'#FFF8DC',n:'lime: milky'},{c:'#C9A227',n:'ZnO: yellow when hot'}],success:'Green CuCO3 turns black and lime water turns milky; Zn nitrate gives brown fumes, residue yellow-hot / white-cold.',fail:'FAIL: powder stays green — it was under-heated.'},
+'Class 9|5':{colors:[{c:'#FFF8DC',n:'CO2: milky lime'},{c:'#2E7D32',n:'SO2: green'},{c:'#1A237E',n:'Cl2: blue-black paper'}],success:'Lime water milky, dichromate orange→green, starch-iodide blue-black, white NH4Cl fumes with HCl rod.',fail:'FAIL: no colour change in the confirmatory tests — gas escaped or reagent is stale.'},
+'Class 10|1':{colors:[{c:'#E53935',n:'HCl: red pH 1-2'},{c:'#FDD835',n:'acetic: yellow-orange'},{c:'#43A047',n:'water: green pH 7'},{c:'#8E24AA',n:'NaOH: violet pH 13-14'}],success:'Strips run red → orange → yellow → green → blue → violet from strongest acid to strongest base.',fail:'FAIL: every strip shows the same colour — dropper was shared without washing.'},
+'Class 10|2':{colors:[{c:'#E3F2FD',n:'H2: pop test'},{c:'#FFF8DC',n:'CO2: milky lime'}],success:'Litmus flips correctly, Zn gives a “pop” with a burning splinter, carbonate + acid turns lime water milky.',fail:'FAIL: no pop sound and lime water stays clear — too little reagent or leak.'},
+'Class 10|3':{colors:[{c:'#1B5E20',n:'FeSO4: green'},{c:'#B0BEC5',n:'ZnSO4: colourless'},{c:'#B87333',n:'Cu: brown coat'}],success:'Blue CuSO4 fades to green/colourless with Fe or Zn; brown copper coats the metal. Order: Zn > Fe > Cu.',fail:'FAIL: colours unchanged after 15 minutes — metal not sandpapered or solutions too dilute.'},
+'Class 10|4':{colors:[{c:'#1565C0',n:'Cu: blue ppt stays'},{c:'#6D4C41',n:'Fe: brown/green stays'},{c:'#FFFFFF',n:'Pb/Zn: white dissolves'}],success:'Cu, Fe ppts stay insoluble; only the white Pb and Zn ppts dissolve in excess NaOH.',fail:'FAIL: everything dissolves, or nothing dissolves — NaOH added too fast or too little.'},
+'Class 10|5':{colors:[{c:'#FFF8DC',n:'CO2: milky'},{c:'#212121',n:'H2S: black stain'},{c:'#43A047',n:'SO2: green'}],success:'Carbonate → milky lime; sulphide → rotten-egg smell + black lead-acetate paper; sulphite → green dichromate.',fail:'FAIL: no gas at all — acid too dilute or salt not powdered.'},
+'Class 11|1':{colors:[{c:'#EAF6FF',n:'clear colourless'}],success:'Crystal-clear solution with the bottom of the meniscus exactly on the 250 mL mark.',fail:'FAIL: cloudy, or level above/below the mark — reweigh and remake.'},
+'Class 11|2':{colors:[{c:'#F8BBD0',n:'faint pink 30 s'}],success:'One drop turns the flask faint pink that stays 30 seconds. M = 0.20 M, strength 8.00 g/L.',fail:'FAIL: dark pink that stays (overshot — add acid and repeat) or colour vanishes at once (undershot).'},
+'Class 11|3':{colors:[{c:'#6D4C41',n:'brown ring'}],success:'A crisp brown ring forms where the two liquids meet — nitrate confirmed.',fail:'FAIL: no ring — FeSO4 is stale (make it fresh) or the tube was shaken.'},
+'Class 11|4':{colors:[{c:'#FFFFFF',n:'white ppt'},{c:'#212121',n:'black CuS'}],success:'Correct group precipitate appears (e.g. white PbCl2, black CuS, gelatinous Al/Fe hydroxide).',fail:'FAIL: no precipitate — original solution too dilute or wrong group reagent.'},
+'Class 11|5':{colors:[{c:'#1565C0',n:'deep blue crystals'}],success:'Deep-blue triclinic crystals, about 6.5 g after overnight cooling.',fail:'FAIL: white powder (dried too hard) or no crystals (solution over-concentrated — add water, redissolve).'},
+'Class 12|1':{colors:[{c:'#F48FB1',n:'faint pink'}],success:'Permanent faint pink end point. M = 0.01 M, strength 1.58 g/L.',fail:'FAIL: brown precipitate (too little sulphuric acid) or pink that never appears (KMnO4 too dilute).'},
+'Class 12|2':{colors:[{c:'#90CAF9',n:'H2 bubbles'},{c:'#8E24AA',n:'phenol: violet'}],success:'Alcohol: bubbles with Na + fruity ester smell. Phenol: violet with FeCl3, pink with phthalic/NaOH.',fail:'FAIL: no violet — FeCl3 was acidic (neutralise it) or phenol sample too old.'},
+'Class 12|3':{colors:[{c:'#C0C0C0',n:'silver mirror'},{c:'#C62828',n:'red Cu2O'},{c:'#FFB300',n:'DNP: orange'}],success:'Aldehyde: silver mirror + brick-red Cu2O. Both give yellow-orange DNP; ketone is negative to Tollen/Fehling.',fail:'FAIL: mirror forms with the ketone too — tube was not clean.'},
+'Class 12|4':{colors:[{c:'#FFFFFF',n:'AgCl: white'},{c:'#8D6E63',n:'Nessler: brown'}],success:'White AgCl (dissolves in NH4OH) proves chloride; ammonia smell + brown Nessler proves NH4+.',fail:'FAIL: no precipitate with AgNO3 — chloride absent or solution far too dilute.'},
+'Class 12|5':{colors:[{c:'#7B1FA2',n:'Molisch: violet ring'},{c:'#1A237E',n:'iodine: blue-black'},{c:'#EFEBE9',n:'grease: translucent spot'}],success:'Violet Molisch ring, blue-black iodine, violet Biuret, yellow→orange xanthoproteic, translucent grease spot, pungent acrolein.',fail:'FAIL: no rings or colours — food extract too dilute, grind and re-extract.'}
+};
+const EX=EXPECT[expKey]||{colors:[],success:exp.result,fail:'FAIL: result does not match the expected observation.'};
+/* Automatic checker: what must be in the vessel / done on the bench to pass */
+const VERIFY={
+'Class 9|1':{all:['nacl','chalk','starch'],minAdds:3},
+'Class 9|2':{all:['mixture'],heat:true,minAdds:1},
+'Class 9|3':{all:['fe'],heat:true,minAdds:1},
+'Class 9|4':{all:['cuco3'],heat:true,minAdds:1},
+'Class 9|5':{any:['caco3','na2so3','mno2','nh4cl'],heat:false,heatIf:['mno2','nh4cl'],minAdds:1},
+'Class 10|1':{any:['hcl','lemon','ch3cooh','acetic','nahco3','naoh'],minAdds:1},
+'Class 10|2':{any:['litmus','zn','na2co3'],minAdds:1},
+'Class 10|3':{any:['cuso4','feso4','znso4'],minAdds:1},
+'Class 10|4':{any:['cu','fe','pb','zn'],minAdds:1},
+'Class 10|5':{any:['na2co3','zns','na2so3'],minAdds:1},
+'Class 11|1':{all:['oxalic'],minAdds:1},
+'Class 11|2':{all:['oxalic','naoh'],minAdds:1},
+'Class 11|3':{any:['h2so4','bacl2','feso4'],minAdds:1},
+'Class 11|4':{any:['naoh','hcl','h2s','nh4'],minAdds:1},
+'Class 11|5':{all:['cuso4'],minAdds:1},
+'Class 12|1':{all:['fas','kmno4'],minAdds:1},
+'Class 12|2':{any:['etoh','ethanol','phenol'],minAdds:1},
+'Class 12|3':{any:['dnp','tollen','fehling'],minAdds:1},
+'Class 12|4':{any:['agno3','naoh','nessler'],minAdds:1},
+'Class 12|5':{any:['molisch','iodine','biuret','xanthoproteic','khso4'],minAdds:1}
+};
+function autoVerify(){
+const v=VERIFY[expKey]||{minAdds:1};
+const fails=[];
+const txt=state.contents.join(' + ').toLowerCase();
+const needHeat=v.hasOwnProperty('heat')?v.heat:needsHeat;
+const needFilter=v.hasOwnProperty('filter')?v.filter:needsFilter;
+if(state.vol<2)fails.push('vessel is nearly empty — add the reagents first');
+if((v.all||[]).some(k=>!txt.includes(k)))fails.push('missing reagent: '+v.all.filter(k=>!txt.includes(k)).join(', ')+' was never added');
+if(v.any&&!v.any.some(k=>txt.includes(k)))fails.push('none of the test systems ('+v.any.join(' / ')+') was added');
+if(state.adds<(v.minAdds||1))fails.push('too few additions ('+state.adds+' of at least '+(v.minAdds||1)+')');
+if(needHeat&&!(state.heats>=1&&state.temp>50))fails.push('mixture was never properly heated');
+if(v.heatIf&&v.heatIf.some(k=>txt.includes(k))&&state.heats<1)fails.push('this gas needs heating — light the burner');
+if(needFilter&&state.filters<1)fails.push('mixture was never filtered');
+if(state.stirs<1)fails.push('mixture was never stirred');
+return {pass:fails.length===0,reasons:fails};
+}
+document.getElementById('expTitle').textContent=cls+' • Exp '+exp.no+': '+exp.title;
+document.getElementById('expSub').textContent=exp.aim;
+document.getElementById('studentBar').innerHTML='Student: <b>'+String(qName).replace(/</g,'&lt;')+'</b>'+(qBoard?' | Board: <b>'+qBoard+'</b>':'')+' | Class: <b>'+cls+'</b>';
+/* --- bench state --- */
+const VESSELS={beaker:{label:'BEAKER',max:100,desc:'wide open top — best for mixing, dissolving and gentle heating'},flask:{label:'FLASK',max:100,desc:'narrow neck — best for swirling liquids like in titrations without spilling'},testtube:{label:'TEST TUBE',max:20,desc:'small and tall — best for quick colour tests with a few drops or grams'},burette:{label:'BURETTE',max:50,desc:'long tube with a tap — best for adding liquid drop by drop, e.g. titrations'}};
+const state={vessel:'beaker',vol:0,temp:25,contents:[],burner:false,steps:[false,false,false,false,false],adds:0,heats:0,stirs:0,filters:0};
+function shortItems(r,n){return r.split(/[|;]/).map(s=>s.trim()).filter(Boolean).slice(0,n||3).map(s=>s.length>55?s.slice(0,55)+'…':s);}
+function suggestedVessel(){const t=(exp.title+' '+exp.reagents).toLowerCase();if(/burette|titrat|kmno4|mohr|f\.a\.s|oxalic|naoh.*acid|acid.*naoh/.test(t))return 'burette (for slow, drop-by-drop addition)';if(/ph\s|ph$|ph paper|litmus|cation|anion|gas test|confirmatory|salt analysis/.test(t))return 'test tube (small amounts react faster and are safer)';if(/flask|standard|250 ml|make up to|meniscus/.test(t))return 'conical flask (easy to swirl without spilling)';return 'beaker (good all-rounder for mixing and heating)';}
+const shortVessel=suggestedVessel().split(' (')[0];
+const firstReagent=(shortItems(exp.reagents,1)[0]||'your chemicals').slice(0,40);
+const firstSee=(exp.obs.split(/[|]/)[0]||exp.obs).trim().slice(0,55);
+const firstSafe=(exp.precaution.split('.')[0]||exp.precaution).trim().slice(0,80);
+const expText=(exp.title+' '+exp.reagents+' '+exp.theory).toLowerCase();
+const needsHeat=/heat|burn|boil|warm|flame|sublim|evapor|decompos|furnace|water bath|bunsen|ignite|\bhot\b/.test(expText);
+const needsFilter=/filter|funnel|filtrate|residue|crystal|ppt|precipit/.test(expText);
+let seq=0;const acts=[];const doneAt=[0,0,0,0,0];
+const stepNeeds=[
+{auto:'add',ok:()=>acts.some(a=>a.a==='add'),hint:'Not done yet — add a chemical to the vessel first (press Add).'},
+{auto:'stir',ok:()=>acts.some(a=>a.a==='stir'&&a.s>doneAt[0]),hint:'Not done yet — press Stir / Shake after step 1.'},
+needsHeat?{auto:'heat',ok:()=>acts.some(a=>a.a==='heat'&&a.s>doneAt[1]),hint:'Not done yet — light the burner and heat after step 2.'}:{auto:'add',ok:()=>acts.some(a=>a.a==='add'&&a.s>doneAt[1]),hint:'Not done yet — add a second sample after step 2.'},
+needsFilter?{auto:'filter',ok:()=>acts.some(a=>a.a==='filter'&&a.s>doneAt[2]),hint:'Not done yet — press Filter after step 3.'}:{auto:null,ok:()=>true,hint:''}
+];
+/* only the first open step can complete, and only via its own bench action */
+function tryAuto(kind){
+const f=state.steps.findIndex(s=>!s);
+if(f===-1||f>3)return;
+const need=stepNeeds[f];
+if(!need||need.auto!==kind||!need.ok())return;
+state.steps[f]=true;doneAt[f]=seq;log('Step '+(f+1)+' verified and completed.');advance();renderSteps();
+}
+function nagEarly(kind){
+const map={add:needsHeat?[0]:[0,2],stir:[1],heat:needsHeat?[2]:[],filter:needsFilter?[3]:[]};
+const list=map[kind]||[];
+const f=state.steps.findIndex(s=>!s);
+if(f===-1)return;
+for(const t of list){if(!state.steps[t]&&t>f){log('Hold on — that belongs to step '+(t+1)+' ('+stepsData[t].title+'). Finish step '+(f+1)+' first.');document.getElementById('benchHint').textContent='That belongs to step '+(t+1)+' — finish step '+(f+1)+' first.';return;}}
+}
+const stepsData=[
+{title:'1. Get your things ready',do:'Take a clean '+shortVessel+'. Keep nearby: '+firstReagent+'.',see:'Empty vessel, clear bench.',tip:'Completes when you press Add.'},
+{title:'2. Add and stir',do:'Pick a chemical, set a small amount, press Add, then Stir.',see:'Liquid rises and mixes evenly.',tip:'Completes when you press Stir.'},
+needsHeat?{title:'3. Heat and watch',do:'Light the burner. Heat a little at a time and watch.',see:firstSee+'.',tip:'Completes when you heat.'}:{title:'3. Add and compare',do:'Add a second sample and compare the two.',see:firstSee+'.',tip:'Completes on your second addition.'},
+{title:'4. Stay safe',do:firstSafe+'.',see:'Small amounts, waft gases, never taste.',tip:needsFilter?'Completes when you filter.':'Read it, then press Done.'},
+{title:'5. Match the colours',do:'Compare your vessel with the colour chips below.',see:EX.success,tip:EX.fail}
+];
+const stepsEl=document.getElementById('steps');
+let cur=0;
+function advance(){const f=state.steps.findIndex(s=>!s);cur=(f===-1?4:Math.max(0,f));}
+function renderSteps(){
+if(cur<0)cur=0;if(cur>4)cur=4;
+const s=stepsData[cur];
+const dots=stepsData.map((_,i)=>'<span class="dot'+(state.steps[i]?' ok':'')+(i===cur?' now':'')+'" data-nav="goto" data-i="'+i+'">'+(i+1)+'</span>').join('');
+stepsEl.innerHTML='<div class="step-count">Step '+(cur+1)+' of 5</div><div class="step-dots">'+dots+'</div>'
++'<li class="current'+(state.steps[cur]?' done':'')+'"><span class="step-num">'+(cur+1)+'</span><span class="step-body"><span class="step-title">'+s.title+'</span><p class="step-line"><b>Do this:</b> '+s.do+'</p><p class="step-line"><b>You should see:</b> '+s.see+'</p><p class="step-tip">'+s.tip+'</p>'+(cur===4?'<div>'+EX.colors.map(c=>'<span class="chip"><i style="background:'+c.c+'"></i>'+c.n+'</span>').join('')+'</div>':'')+'</span></li>'
++'<div class="step-nav"><button data-nav="prev"'+(cur===0?' disabled':'')+'>← Back</button><button data-s="'+cur+'" class="primary">'+(state.steps[cur]?'Undo':'Mark done →')+'</button>'+(cur<4?'<button data-nav="next">Skip →</button>':'')+'</div>';
+const n=state.steps.filter(Boolean).length;
+document.getElementById('progBar').style.width=(n/5*100)+'%';
+document.getElementById('mProg').textContent=n+' / 5 steps';
+document.getElementById('btnFinish').disabled=n<5;
+document.getElementById('finishHint').textContent=n<5?('Complete all 5 steps to finish ('+n+'/5 done).'):('All steps done. Finish to see your result.');
+syncMobileBar();
+}
+stepsEl.onclick=e=>{
+const nav=e.target.closest('[data-nav]');
+if(nav&&!nav.disabled){const k=nav.dataset.nav;if(k==='prev'&&cur>0)cur--;else if(k==='next'&&cur<4)cur++;else if(k==='goto')cur=+nav.dataset.i;renderSteps();return;}
+const dot=e.target.closest('.dot');
+if(dot){cur=+dot.dataset.i;renderSteps();return;}
+const b=e.target.closest('[data-s]');if(!b)return;const i=+b.dataset.s;
+if(state.steps[i]){state.steps[i]=false;cur=i;log('Reopened procedure step '+(i+1)+'.');renderSteps();return;}
+for(let j=0;j<i;j++){if(!state.steps[j]){cur=j;log('Steps go in order — finish step '+(j+1)+' first.');document.getElementById('benchHint').textContent='Steps go in order — finish step '+(j+1)+' first.';renderSteps();return;}}
+const need=stepNeeds[i];
+if(need&&!need.ok()){log('Step '+(i+1)+' refused: '+need.hint);document.getElementById('benchHint').textContent=need.hint;renderSteps();return;}
+state.steps[i]=true;doneAt[i]=seq;log('Step '+(i+1)+' verified and completed.');advance();renderSteps();};
+/* reagents from experiment */
+function splitReagents(r){return r.split(/[|;]/).map(s=>s.trim()).filter(Boolean).slice(0,8);}
+const reagentSel=document.getElementById('reagent');
+splitReagents(exp.reagents).forEach((r,i)=>{const o=document.createElement('option');o.value=r;o.textContent=(i+1)+'. '+r.slice(0,60);reagentSel.appendChild(o);});
+const amt=document.getElementById('amount');
+amt.oninput=()=>{document.getElementById('amtVal').textContent=amt.value;document.getElementById('amtUnit').textContent=/g\b|gram|mg|ribbon|strip|paper|rod|funnel|tube/i.test(reagentSel.value)?'g/unit':'mL';};
+reagentSel.onchange=()=>amt.oninput();amt.oninput();
+document.getElementById('heatTime').oninput=e=>document.getElementById('heatVal').textContent=e.target.value;
+/* per-experiment heating guide: [seconds per click, target temperature, how-to hint] */
+const HEAT_GUIDE={
+'Class 9|1':[40,'100 °C (boiling)','Boil to fully cook the starch paste.'],
+'Class 9|2':[30,'100 °C (to dryness)','Heat in rounds until white sublimate coats the funnel and the dish is dry.'],
+'Class 9|3':[40,'red hot (max here)','Strong heat fuses Fe+S into black FeS. Look away from burning Mg.'],
+'Class 9|4':[40,'100 °C','Heat until green turns fully black (CuO), or brown fumes stop (zinc nitrate).'],
+'Class 9|5':[10,'40–60 °C','Gentle warming only — just enough to push the gas over into the test.'],
+'Class 11|5':[30,'80 °C (steaming, not boiling)','Concentrate gently to crystallisation point. Never boil dry.'],
+'Class 12|2':[10,'40 °C','Gentle warming for the fruity-ester test only; Na test needs no heat.'],
+'Class 12|3':[20,'60 °C water bath','Warm 5 minutes in the bath. Never boil Tollen or Fehling.'],
+'Class 12|5':[30,'100 °C','Strong heat with KHSO4 until the pungent acrolein vapour appears.']
+};
+(function(){
+const g=HEAT_GUIDE[expKey];
+const sl=document.getElementById('heatTime');
+const hg=document.getElementById('heatGuide');
+if(g){sl.value=g[0];document.getElementById('heatVal').textContent=g[0];
+hg.textContent='For this practical: set about '+g[0]+' s per click and aim for '+g[1]+'. '+g[2];}
+else if(needsHeat){hg.textContent='For this practical: heat in short bursts toward 80–100 °C and watch for the change.';}
+else{hg.textContent='For this practical: no heating needed — leave the burner OFF.';}
+})();
+/* visuals: one drawing per vessel, only the active vessel is visible */
+const GEO={
+beaker:{group:'vBeaker',liq:'liqBeaker',base:265,maxH:110},
+flask:{group:'vFlask',liq:'liqFlask',base:264,maxH:100},
+testtube:{group:'vTube',liq:'liqTube',base:262,maxH:108},
+burette:{group:'vBurette',liq:'liqBurette',base:218,maxH:102}
+};
+const bubblesG=document.getElementById('gasBubbles');
+const flame=document.getElementById('flame');
+/* Realistic colours as per the practicals: single reagents have true colours,
+   known mixtures show their reaction colour (endpoint pink, milky lime, etc.),
+   and heating transforms decomposing solids (green CuCO3 to black CuO, ...). */
+function reagentColorOne(name){
+const t=String(name).toLowerCase();
+const has=s=>t.includes(s);
+if(has('kmno4'))return '#6A1B9A';
+if(has('cuso4')||has('copper sulphate')||has('copper sulfate'))return '#1565C0';
+if(has('feso4')||has('fas')||has('mohr')||has('ferrous')||has('fe(ii)')||has('iron(ii)'))return '#A5D6A7';
+if(has('fecl3')||has('ferric')||has('fe(iii)')||has('iron(iii)'))return '#C98A2B';
+if(has('k2cr2o7')||has('dichromate'))return '#EF6C00';
+if(has('dnp')||has('2,4-d')||has('dinitrophenyl'))return '#FFB300';
+if(has('iodine'))return '#6D4C41';
+if(has('tollen'))return '#F5F5F5';
+if(has('fehling'))return '#1E88E5';
+if(has('nessler'))return '#C9A227';
+if(has('lemon'))return '#FFF9C4';
+if(has('starch')&&!has('iodide'))return '#FAF6E8';
+if(has('chalk')||has('suspension'))return '#F5F5F0';
+if(has('sand'))return '#E8DCC0';
+if(has('oil')||has('fat')||has('grease')||has('ghee'))return '#FFE0B2';
+if(has('egg')||has('albumin')||has('protein')||has('milk'))return '#FFF3E0';
+return '#CFE8F7';
+}
+function solutionColor(){
+if(!state.contents.length)return '#FFFDE7';
+const txt=state.contents.join(' + ').toLowerCase();
+const last=state.contents[state.contents.length-1].toLowerCase();
+const heated=state.heats>0;
+const T=s=>txt.includes(s);
+/* reaction endpoints and confirmatory colours need the whole mixture */
+if(T('kmno4')&&(T('fas')||T('mohr')||T('feso4')))return '#F8BBD0';
+if((T('oxalic')&&T('naoh'))||(T('phenolphthalein')&&T('naoh')))return '#F8BBD0';
+if(T('lime')&&(T('co2')||T('caco3')||T('na2co3')||T('carbonate')))return '#FFF8DC';
+if(T('starch-iodide')&&(T('cl2')||T('chlorine')||T('mno2')))return '#1A237E';
+if((T('k2cr2o7')||T('dichromate'))&&(T('so2')||T('sulphite')||T('sulfite')||T('na2so3')))return '#2E7D32';
+if((T('bacl2')||T('barium'))&&(T('so4')||T('sulphate')||T('sulfate')))return '#FFFFFF';
+if(T('fecl3')&&T('phenol'))return '#7B1FA2';
+if(T('tollen')&&(T('formaldehyde')||T('aldehyde')))return '#BDBDBD';
+if(T('fehling')&&(T('formaldehyde')||T('aldehyde')))return '#C62828';
+if(T('dnp')||T('2,4-d'))return '#FFB300';
+if(T('nessler')&&T('nh'))return '#8D6E63';
+if(T('agno3')&&(T('nacl')||T('hcl')||T('chloride')))return '#FFFFFF';
+if(T('molisch'))return '#7B1FA2';
+if(T('biuret'))return '#AB47BC';
+if(T('iodine')&&T('starch'))return '#1A237E';
+if(T('xanthoproteic'))return '#FB8C00';
+/* heating transforms decomposing solids, as the handbook describes */
+if(heated){
+if(T('cuco3'))return '#212121';
+if(T('zinc nitrate')||T('zn(no3'))return '#B8860B';
+if(T('fes')||T('7.0 g fe'))return '#212121';
+if(T('mg ribbon')||T('5 cm mg')||T('magnesium ribbon'))return '#FAFAFA';
+if(T('nh4cl')&&T('sand'))return '#F5F5F0';
+}
+return reagentColorOne(last);
+}
+function colorName(h){const m={'#6A1B9A':'deep purple','#1565C0':'deep blue','#A5D6A7':'pale green','#EF6C00':'orange','#FFB300':'yellow-orange','#1A237E':'blue-black','#2E7D32':'green','#7B1FA2':'violet','#AB47BC':'violet','#F8BBD0':'faint pink','#FFF8DC':'milky white','#FFFFFF':'white','#212121':'black','#FAFAFA':'white','#BDBDBD':'silvery grey','#C62828':'brick red','#8D6E63':'brown','#6D4C41':'brown','#F5F5F0':'cloudy white','#FAF6E8':'milky white','#E8DCC0':'sandy','#FFE0B2':'oily yellow','#FFF9C4':'pale yellow','#FFF3E0':'creamy','#CFE8F7':'pale blue (colourless)','#F5F5F5':'colourless','#1E88E5':'blue','#C9A227':'yellow','#C98A2B':'yellow-brown','#B8860B':'yellow','#FB8C00':'orange-yellow'};return m[h]||'coloured';}
+function renderBench(){
+const max=VESSELS[state.vessel].max;
+const frac=Math.min(1,state.vol/max);
+const g=GEO[state.vessel];
+Object.keys(GEO).forEach(k=>document.getElementById(GEO[k].group).setAttribute('visibility',k===state.vessel?'visible':'hidden'));
+const liq=document.getElementById(g.liq);
+let h=g.maxH*frac;
+if(state.vol>0&&h<14)h=14;
+const y=g.base-h;
+liq.setAttribute('height',Math.max(0,Math.round(h*10)/10));
+if(g.liq!=='liqFlask')liq.setAttribute('y',y);else liq.setAttribute('y',Math.max(160,y));
+liq.setAttribute('fill',solutionColor());
+liq.setAttribute('stroke','#2b2350');
+liq.setAttribute('stroke-width','1.5');
+document.getElementById('mVol').textContent=Math.round(state.vol*10)/10+' mL';
+document.getElementById('mTemp').textContent=Math.round(state.temp)+' °C';
+document.getElementById('mCont').textContent=state.contents.length?state.contents.length+' item(s): '+state.contents[state.contents.length-1].slice(0,28):'empty';
+document.getElementById('thermoFill').setAttribute('height',Math.max(6,Math.min(80,(state.temp-10)/90*80)));
+document.getElementById('thermoFill').setAttribute('y',230-Math.max(6,Math.min(80,(state.temp-10)/90*80)));
+flame.setAttribute('visibility',state.burner?'visible':'hidden');
+flame.classList.toggle('on',state.burner);
+document.getElementById('btnHeat').textContent='Burner: '+(state.burner?'ON':'OFF');
+const stm=document.getElementById('steam');stm.setAttribute('visibility',state.temp>70?'visible':'hidden');stm.classList.toggle('steamOn',state.temp>70);
+const bgl=document.getElementById('burnGlow');bgl.setAttribute('visibility',state.burner?'visible':'hidden');bgl.classList.toggle('glowOn',state.burner);
+bubblesG.innerHTML=(state.burner&&state.temp>50)?'<circle class="bubble-rise" cx="200" cy="250" r="4" fill="#fff" opacity=".8"/><circle class="bubble-rise" cx="225" cy="255" r="3" fill="#fff" opacity=".8" style="animation-delay:.4s"/><circle class="bubble-rise" cx="245" cy="250" r="5" fill="#fff" opacity=".7" style="animation-delay:.8s"/>':(state.vol>0?'<circle class="bubble-rise" cx="210" cy="252" r="2.5" fill="#fff" opacity=".5" style="animation-duration:3.2s"/><circle class="bubble-rise" cx="232" cy="255" r="2" fill="#fff" opacity=".45" style="animation-duration:3.8s;animation-delay:.9s"/>':'');
+syncMobileBar();
+}
+function log(msg){const d=document.createElement('div');const t=new Date().toLocaleTimeString();d.textContent=t+' — '+msg;const L=document.getElementById('log');L.prepend(d);const lc=document.getElementById('logCount');if(lc)lc.textContent=(+lc.textContent||0)+1;}
+document.getElementById('vesselBtns').onclick=e=>{const b=e.target.closest('button');if(!b)return;state.vessel=b.dataset.v;document.querySelectorAll('#vesselBtns button').forEach(x=>x.classList.toggle('active',x===b));state.vol=Math.min(state.vol,VESSELS[state.vessel].max);log('Selected '+VESSELS[state.vessel].label.toLowerCase()+' (max '+VESSELS[state.vessel].max+' mL). '+VESSELS[state.vessel].desc+'.');document.getElementById('benchHint').textContent='Now using: '+VESSELS[state.vessel].label.toLowerCase()+' — '+VESSELS[state.vessel].desc+'.';renderBench();};
+document.getElementById('btnAdd').onclick=()=>{
+const r=reagentSel.value,a=+amt.value;
+const max=VESSELS[state.vessel].max;
+if(state.vol+a>max){log('Vessel full! Remove some or reset. ('+state.vol+'/'+max+' mL)');return;}
+state.vol+=a;state.contents.push(r+' ('+a+')');state.adds++;
+const rod=document.getElementById('stirRod');rod.classList.remove('stirring');void rod.getBBox;rod.classList.add('stirring');
+const _col=solutionColor();
+const jet=document.getElementById('pourJet');jet.setAttribute('fill',_col);jet.setAttribute('visibility','visible');setTimeout(()=>jet.setAttribute('visibility','hidden'),900);
+const liqEl=document.getElementById(GEO[state.vessel].liq);liqEl.classList.remove('sloshing');void liqEl.getBoundingClientRect;setTimeout(()=>liqEl.classList.add('sloshing'),10);setTimeout(()=>liqEl.classList.remove('sloshing'),1200);
+const _fz=isFizz(state.contents.join(' ').toLowerCase());
+if(_fz)burst(10,'#ffffff');
+log('Added '+a+' '+(document.getElementById('amtUnit').textContent)+' of '+r.slice(0,50)+' to '+VESSELS[state.vessel].label.toLowerCase()+'. Total '+Math.round(state.vol*10)/10+' mL. Solution now looks '+colorName(_col)+'.'+(_fz?' Fizz! Gas rushes up through the liquid.':''));
+acts.push({a:'add',s:++seq});tryAuto('add');nagEarly('add');
+renderBench();
+};
+function setBurner(on){state.burner=on;log('Burner turned '+(on?'ON — heating. Click burner or button to stop.':'OFF.'));renderBench();}
+document.getElementById('btnHeat').onclick=()=>{
+if(!state.burner){setBurner(true);const secs=+document.getElementById('heatTime').value;state.temp=Math.min(100,state.temp+secs*1.5);state.heats++;log('Heated for '+secs+' s. Temperature now '+Math.round(state.temp)+' °C.'+(state.temp>60?' Bubbles and vapour observed.':'')+' Colour now looks '+colorName(solutionColor())+'. Expected: '+exp.obs.slice(0,80));acts.push({a:'heat',s:++seq});tryAuto('heat');nagEarly('heat');setTimeout(()=>{if(state.burner)setBurner(false);renderBench();},1200);}
+else setBurner(false);
+renderBench();
+};
+document.getElementById('burner').onclick=()=>document.getElementById('btnHeat').click();
+document.getElementById('btnStir').onclick=()=>{const rod=document.getElementById('stirRod');rod.classList.remove('stirring');rod.classList.remove('dipping');void rod.getBBox;setTimeout(()=>rod.classList.add('stirring'),10);setTimeout(()=>{rod.classList.add('dipping');setTimeout(()=>rod.classList.remove('dipping'),1400);},10);state.stirs++;acts.push({a:'stir',s:++seq});log('Stirred / shook the mixture. Solution looks uniform.');tryAuto('stir');nagEarly('stir');renderBench();};
+document.getElementById('stirRod').onclick=()=>document.getElementById('btnStir').click();
+document.getElementById('btnFilter').onclick=()=>{state.filters++;acts.push({a:'filter',s:++seq});log('Filtered the mixture through filter paper. Residue and filtrate collected separately.');tryAuto('filter');nagEarly('filter');renderBench();};
+document.getElementById('tubeRack').onclick=()=>log('Test tubes ready. Use them for small-scale confirmatory tests.');
+document.getElementById('thermo').onclick=()=>log('Thermometer reads '+Math.round(state.temp)+' °C.');
+document.querySelectorAll('.vesselG').forEach(vg=>vg.onclick=()=>log('Vessel tapped gently. Meniscus read at eye level: '+Math.round(state.vol*10)/10+' mL. Use the buttons below the bench to switch glassware.'));
+document.getElementById('btnReset').onclick=()=>{state.vol=0;state.temp=25;state.contents=[];state.burner=false;state.adds=state.heats=state.stirs=state.filters=0;state.steps=[false,false,false,false,false];cur=0;acts.length=0;seq=0;for(let k=0;k<5;k++)doneAt[k]=0;document.getElementById('finishHint').textContent='Complete all 5 steps to finish and see your result.';document.getElementById('benchHint').textContent='Tip: pick a vessel, add a reagent with an amount, then heat or stir. Follow the 5 procedure steps on the right.';log('Bench reset. Vessel emptied, temperature back to 25 °C, all 5 steps cleared — start from step 1.');document.getElementById('endPop').classList.remove('open');document.getElementById('endPop').innerHTML='';renderSteps();renderBench();};
+document.getElementById('btnFinish').onclick=()=>{
+if(!state.steps[4]){state.steps[4]=true;doneAt[4]=seq;renderSteps();}
+const r=autoVerify();
+const chips=EX.colors.map(c=>'<span class="chip"><i style="background:'+c.c+'"></i>'+c.n+'</span>').join('');
+const work='<b>Your work:</b> '+state.adds+' addition(s), '+state.heats+' heating(s), '+state.stirs+' stir(s), '+state.filters+' filtration(s).';
+let card='';
+if(r.pass){
+card='<div class="endcard"><b>Lab checked your work — expected colours:</b><br>'+chips+'<br><b>Success:</b> '+EX.success+'<br>'+work+'<div class="verdict ok">CHECKED AUTOMATICALLY — EXPERIMENT SUCCESS. Well done! Taking you back to page 2…</div></div>';
+log('Lab auto-check passed: all reagents, heating, filtering and mixing verified. Score 100%.');
+try{localStorage.setItem('labDone_'+cls+'_'+exp.no,JSON.stringify({score:100,pass:true,when:Date.now()}));}catch(_){}
+setTimeout(()=>{const p=new URLSearchParams({name:qName,board:qBoard,class:cls});location.href='lab.html?'+p.toString();},3000);
+}else{
+card='<div class="endcard"><b>Lab checked your work — expected colours:</b><br>'+chips+'<br><b>Success:</b> '+EX.success+'<br>'+work+'<div class="verdict no">CHECKED AUTOMATICALLY — EXPERIMENT FAILED:<br>• '+r.reasons.join('<br>• ')+'</div><div class="verdict-btns"><button id="btnBack" style="background:#3A3405">Back to Bench — Fix It</button></div></div>';
+log('Lab auto-check failed: '+r.reasons.join('; '));
+try{localStorage.setItem('labDone_'+cls+'_'+exp.no,JSON.stringify({score:35,pass:false,when:Date.now()}));}catch(_){}
+}
+document.getElementById('endPop').innerHTML=card;
+document.getElementById('endPop').classList.add('open');
+document.getElementById('endPop').scrollIntoView({behavior:'smooth',block:'center'});
+document.getElementById('finishHint').textContent=r.pass?'Experiment over — success! Returning to page 2…':'Experiment over — see what failed in the popup on the bench.';
+const bb=document.getElementById('btnBack');
+if(bb)bb.onclick=()=>document.getElementById('endPop').classList.remove('open');
+};
+/* sticky mobile bar mirrors the main controls so no scrolling is needed */
+function syncMobileBar(){
+const hb=document.getElementById('mbHeat');if(!hb)return;
+hb.textContent=state.burner?'Burner ON':'Burner OFF';
+const n=state.steps.filter(Boolean).length;
+document.getElementById('mbProg').textContent=n+'/5';
+document.getElementById('mbStep').textContent=n>=5?'Finish':'Step '+(cur+1)+(state.steps[cur]?' done':' Done');
+}
+function isFizz(t){const acid=/hcl|h2so4|acetic|acid|vinegar|lemon/.test(t);const gas=/na2co3|carbonate|caco3|nahco3|zns|sulphide|zn\b|magnesium|ethanol|etoh|\bna\b/.test(t);return acid&&gas;}
+function burst(n,color){const g=document.getElementById('fx');if(!g)return;for(let i=0;i<n;i++){const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',180+Math.random()*70);c.setAttribute('cy',232+Math.random()*18);c.setAttribute('r',2+Math.random()*3.5);c.setAttribute('fill',color);c.setAttribute('class','fizz');c.style.animationDuration=(0.8+Math.random()*0.8)+'s';g.appendChild(c);setTimeout(()=>c.remove(),1900);}}
+/* shelf bottles visual */
+(function(){const g=document.getElementById('shelfBottles');splitReagents(exp.reagents).slice(0,4).forEach((r,i)=>{const x=30+i*48;g.innerHTML+='<g><rect x="'+x+'" y="26" width="30" height="0" fill="none"/><rect x="'+x+'" y="30" width="30" height="34" rx="3" fill="'+reagentColorOne(r)+'" stroke="#2b2350" stroke-width="2"/><rect x="'+(x+10)+'" y="22" width="10" height="10" fill="#2b2350"/><text x="'+(x+15)+'" y="80" text-anchor="middle" font-size="9" font-weight="700">R'+(i+1)+'</text></g>';});})();
+renderSteps();renderBench();
+log('Opened '+cls+' Exp '+exp.no+': '+exp.title+'. Read the 5 steps, then perform them on the bench.');
+</script>
+</body>
+</html>
